@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- Prototype for a pitch, not launched: keep out of search. -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Watch | Nina</title>
+  <meta name="description" content="Nina's recent Twitch streams and clips.">
+  <meta name="theme-color" content="#0a0b0c">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@500;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="watch">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header" data-header></header>
+
+  <main id="main">
+    <section class="page-head">
+      <div class="wrap">
+        <span class="kicker">Watch</span>
+        <h1><span class="chrome">Watch</span></h1>
+        <p>Recent streams and the clips chat keeps coming back to.</p>
+      </div>
+    </section>
+
+    <section class="section" id="live" aria-label="Stream status">
+      <div class="wrap">
+        <article class="live-card" data-live-card>
+          <div class="live-screen" data-live-screen>
+            <div class="live-state">
+              <img class="live-emote" data-emote-img="NightOwl" width="112" height="112" alt="" aria-hidden="true">
+              <p class="live-msg" data-live-title></p>
+              <p class="live-sub" data-live-note></p>
+            </div>
+          </div>
+          <footer class="live-bar">
+            <div class="live-bar-main">
+              <span class="live-pill"><span class="live-dot" aria-hidden="true"></span><span data-live-pill>Offline</span></span>
+              <span class="live-channel">twitch.tv/ilyynina</span>
+              <span class="live-meta" data-live-meta hidden></span>
+            </div>
+            <a class="btn btn-ghost btn-sm" data-twitch-link href="https://www.twitch.tv/ilyynina"
+               target="_blank" rel="noopener noreferrer">Open the channel</a>
+          </footer>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="streams">
+      <div class="wrap">
+        <div class="section-head section-head-row">
+          <div>
+            <span class="kicker">01 / Past broadcasts</span>
+            <h2>Missed a stream?</h2>
+            <p>Her latest full broadcasts. Yes, those are the real titles.</p>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="https://www.twitch.tv/ilyynina/videos?filter=archives&sort=time" target="_blank" rel="noopener noreferrer">All videos on Twitch</a>
+        </div>
+        <ul class="video-grid" data-streams></ul>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="clips">
+      <div class="wrap">
+        <div class="section-head section-head-row">
+          <div>
+            <span class="kicker">02 / Clips</span>
+            <h2>Worth the rewatch</h2>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="https://www.twitch.tv/ilyynina/clips?filter=clips&range=all" target="_blank" rel="noopener noreferrer">Every clip on Twitch</a>
+        </div>
+        <ul class="clips-grid" data-clips></ul>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer" data-footer></footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/site.js"></script>
+</body>
+</html>

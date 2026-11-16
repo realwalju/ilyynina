@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- Prototype for a pitch, not launched: keep out of search. -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Nina | ilyynina</title>
+  <meta name="description" content="Nina (ilyynina) - XSET Fortnite pro, Twitch partner and Milk Cup 2025 champion. Live stream, clips, setup and socials.">
+  <meta name="theme-color" content="#0a0b0c">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@500;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="home">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" data-header></header>
+
+  <main id="main">
+
+    <!-- Hero ------------------------------------------------------------ -->
+    <section class="hero" id="top">
+      <div class="wrap hero-inner">
+        <div class="hero-copy">
+          <!-- Offline markup by default; site.js upgrades it only once her
+               status has actually come back live. -->
+          <span class="eyebrow" data-live-eyebrow>
+            <span class="live-dot" aria-hidden="true"></span>
+            <span data-live-eyebrow-text>XSET Fortnite</span>
+          </span>
+
+          <h1 class="hero-name"><span class="chrome" data-text="NINA">NINA</span></h1>
+          <p class="hero-tagline" data-tagline></p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" data-twitch-link href="https://www.twitch.tv/ilyynina"
+               target="_blank" rel="noopener noreferrer">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+              Watch on Twitch
+            </a>
+            <a class="btn btn-ghost" href="#clips">See the clips</a>
+          </div>
+
+          <div class="creator-code">
+            <button class="code-chip" type="button" data-copy-code>
+              <span class="code-chip-label">Creator code</span>
+              <strong data-code>ninalol</strong>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V4H4v12h4"/></svg>
+            </button>
+            <span class="code-status" role="status" data-copy-status></span>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="plate">
+            <img class="plate-photo" data-avatar width="600" height="600" alt="Nina" fetchpriority="high">
+            <div class="plate-strip">
+              <span>ilyynina</span>
+              <span class="plate-team">XSET</span>
+            </div>
+          </div>
+          <img class="sticker sticker-a" data-emote-img="Hi" width="112" height="112" alt="" aria-hidden="true">
+          <img class="sticker sticker-b" data-emote-img="Cup1" width="112" height="112" alt="" aria-hidden="true">
+          <img class="sticker sticker-c" data-emote-img="Love" width="112" height="112" alt="" aria-hidden="true">
+        </div>
+      </div>
+
+      <div class="wrap">
+        <div class="goal" data-goal>
+          <div class="goal-head">
+            <span class="goal-label" data-goal-label></span>
+            <span class="goal-count" data-goal-count></span>
+          </div>
+          <div class="goal-track" role="progressbar" aria-label="Twitch followers" aria-valuemin="0">
+            <div class="goal-bar" data-goal-bar></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ticker" aria-hidden="true"><div class="ticker-track" data-ticker></div></div>
+    </section>
+
+    <!-- Live ------------------------------------------------------------ -->
+    <section class="section" id="live" aria-label="Stream status">
+      <div class="wrap">
+        <article class="live-card" data-live-card>
+          <div class="live-screen" data-live-screen>
+            <div class="live-state">
+              <img class="live-emote" data-emote-img="NightOwl" width="112" height="112" alt="" aria-hidden="true">
+              <p class="live-msg" data-live-title></p>
+              <p class="live-sub" data-live-note></p>
+            </div>
+          </div>
+          <footer class="live-bar">
+            <div class="live-bar-main">
+              <span class="live-pill"><span class="live-dot" aria-hidden="true"></span><span data-live-pill>Offline</span></span>
+              <span class="live-channel">twitch.tv/ilyynina</span>
+              <span class="live-meta" data-live-meta hidden></span>
+            </div>
+            <a class="btn btn-ghost btn-sm" data-twitch-link href="https://www.twitch.tv/ilyynina"
+               target="_blank" rel="noopener noreferrer">Open the channel</a>
+          </footer>
+        </article>
+      </div>
+    </section>
+
+    <!-- Highlights ------------------------------------------------------ -->
+    <section class="section" id="highlights">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="kicker">01 / Record</span>
+          <h2>On the comp circuit</h2>
+        </div>
+        <ul class="highlights" data-highlights></ul>
+      </div>
+    </section>
+
+    <!-- Clips ----------------------------------------------------------- -->
+    <section class="section section-alt" id="clips">
+      <div class="wrap">
+        <div class="section-head section-head-row">
+          <div>
+            <span class="kicker">02 / Clips</span>
+            <h2>Worth the rewatch</h2>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="watch.html">Streams and more clips</a>
+        </div>
+        <ul class="clips-grid" data-clips data-limit="6"></ul>
+      </div>
+    </section>
+
+    <!-- About ----------------------------------------------------------- -->
+    <section class="section" id="about">
+      <div class="wrap about">
+        <div>
+          <div class="section-head">
+            <span class="kicker">03 / About</span>
+            <h2>Hi, I'm Nina</h2>
+          </div>
+          <div class="about-copy" data-about></div>
+          <a class="btn btn-ghost btn-sm about-more" href="about.html">Her story so far</a>
+        </div>
+        <dl class="facts" data-facts></dl>
+      </div>
+    </section>
+
+    <!-- Chat lore ------------------------------------------------------- -->
+    <section class="section section-alt" id="lore">
+      <div class="wrap">
+        <div class="section-head section-head-row">
+          <div>
+            <span class="kicker">04 / Chat lore</span>
+            <h2>If you know, you know</h2>
+            <p>Real stream titles and clip names, exactly as chat wrote them.</p>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="about.html#lore">All of it</a>
+        </div>
+        <ul class="commands" data-commands></ul>
+        <ul class="lore" data-lore data-limit="3"></ul>
+      </div>
+    </section>
+
+    <!-- Emotes ---------------------------------------------------------- -->
+    <section class="section emote-section" id="emotes">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="kicker">05 / In chat</span>
+          <h2>The ilyyni emotes</h2>
+          <p>What chat types all stream. Hover to hold the rail still, click one to spam it.</p>
+        </div>
+      </div>
+      <div class="emote-rail"><ul class="emote-track" data-emotes></ul></div>
+    </section>
+
+    <!-- Socials + contact ---------------------------------------------- -->
+    <section class="section section-alt" id="connect">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="kicker">06 / Elsewhere</span>
+          <h2>Follow along</h2>
+        </div>
+        <ul class="socials" data-socials></ul>
+
+        <div class="contact-card">
+          <div>
+            <h3>Work with Nina</h3>
+            <p data-contact-label></p>
+          </div>
+          <a class="btn btn-primary" data-contact-link href="#"></a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer" data-footer></footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/site.js"></script>
+</body>
+</html>
