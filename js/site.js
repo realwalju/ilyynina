@@ -12,8 +12,8 @@
 
   const allEmotes = S.emotes.concat(S.emotesExtra || []);
   const emoteById = Object.fromEntries(allEmotes);
-  const emoteUrl = (name) =>
-    'https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_' + emoteById[name] + '/default/dark/3.0';
+  const emoteUrl = (name, format = 'default') =>
+    'https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_' + emoteById[name] + '/' + format + '/dark/3.0';
   // Twitch embeds refuse to load unless told which host they are framed on.
   const parent = () => location.hostname || 'localhost';
   const TWITCH = 'https://www.twitch.tv/' + S.twitchHandle;
@@ -25,8 +25,8 @@
   }
 
   /* --- Header + footer: one copy here instead of one per page. ------------ */
-  const PAGES = [['home', 'index.html', 'Home'], ['watch', 'watch.html', 'Watch'], ['emotes', 'emotes.html', 'Emotes'],
-                 ['setup', 'setup.html', 'Setup'], ['about', 'about.html', 'About']];
+  const PAGES = [['home', 'index.html', 'Home'], ['watch', 'watch.html', 'Watch'], ['play', 'play.html', 'Play', 'In the works'], ['emotes', 'emotes.html', 'Emotes'],
+                 ['setup', 'setup.html', 'Setup'], ['about', 'about.html', 'About'], ['links', 'links/', 'Links']];
   const here = document.body.dataset.page;
   on('[data-header]', (el) => {
     el.innerHTML =
@@ -34,7 +34,9 @@
         '<a class="brand" href="index.html" aria-label="ilyynina, home">' +
           '<span class="brand-chrome">NINA</span><span class="brand-handle">ilyynina</span></a>' +
         '<nav class="nav-menu" aria-label="Main">' + PAGES.map((p) =>
-          '<a href="' + p[1] + '"' + (p[0] === here ? ' aria-current="page"' : '') + '>' + p[2] + '</a>').join('') +
+          '<a href="' + p[1] + '"' + (p[0] === here ? ' aria-current="page"' : '') +
+            (p[3] ? ' aria-label="' + p[2] + ' - ' + p[3] + '" title="' + p[3] + '"' : '') + '>' + p[2] +
+            (p[3] ? '<span class="nav-status" aria-hidden="true">WIP</span>' : '') + '</a>').join('') +
         '</nav>' +
         '<a class="btn btn-primary nav-cta" href="' + TWITCH + '" target="_blank" rel="noopener noreferrer">Watch on Twitch</a>' +
       '</div>';
@@ -86,8 +88,57 @@
   /* --- Static fills ------------------------------------------------------- */
   on('[data-tagline]', (el) => { el.textContent = S.tagline; });
   on('[data-avatar]', (el) => { el.src = S.avatar; });
-  $$('[data-emote-img]').forEach((img) => { img.src = emoteUrl(img.dataset.emoteImg); });
+  $$('[data-emote-img]').forEach((img) => {
+    img.src = emoteUrl(img.dataset.emoteImg, img.hasAttribute('data-emote-static') ? 'static' : 'default');
+  });
   $$('[data-code]').forEach((el) => { el.textContent = S.creatorCode; });
+
+  /* Static emote artwork drifts in the margins; headings keep it in flow. */
+  function decorativeEmote(name, className) {
+    const img = document.createElement('img');
+    img.src = emoteUrl(name, 'static');
+    img.className = className;
+    img.width = img.height = 112;
+    img.alt = '';
+    img.setAttribute('aria-hidden', 'true');
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.draggable = false;
+    return img;
+  }
+  $$('[data-kicker-emote]').forEach((el) => {
+    el.prepend(decorativeEmote(el.dataset.kickerEmote, 'kicker-emote'));
+  });
+  $$('[data-emote-sprinkles]').forEach((el) => {
+    const layer = document.createElement('div');
+    layer.className = 'emote-sprinkles';
+    layer.setAttribute('aria-hidden', 'true');
+    el.dataset.emoteSprinkles.split(/\s+/).filter(Boolean).slice(0, 3).forEach((name) => {
+      const sticker = document.createElement('span');
+      sticker.className = 'section-emote';
+      sticker.appendChild(decorativeEmote(name, ''));
+      layer.appendChild(sticker);
+    });
+    el.prepend(layer);
+  });
+
+  /* --- Off stream: local photos, linked back to her original posts. ------- */
+  const photoImage = (p) =>
+    '<img src="' + esc(p.src) + '" width="' + p.width + '" height="' + p.height +
+    '" alt="' + esc(p.alt) + '" loading="lazy" decoding="async">';
+  $$('[data-about-photo]').forEach((el) => {
+    el.href = TWITCH;
+    el.innerHTML = photoImage({ src: S.avatar, width: 600, height: 600, alt: "Nina's Twitch profile picture." }) +
+      '<span class="portrait-caption"><span>Nina</span><span>Twitch profile <span aria-hidden="true">&#8599;</span></span></span>';
+  });
+  $$('[data-photos]').forEach((el) => {
+    el.innerHTML = S.photos.map((p) =>
+      '<li><a class="photo-card" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer">' +
+        '<span class="photo-frame">' + photoImage(p) + '<span class="photo-open" aria-hidden="true">&#8599;</span></span>' +
+        '<span class="photo-caption">' + esc(p.caption) + '</span>' +
+        '<time class="photo-date" datetime="' + esc(p.date) + '">' + esc(p.dateLabel) + '</time>' +
+      '</a></li>').join('');
+  });
 
   on('[data-ticker]', (el) => {
     el.innerHTML = [0, 1].map(() =>
@@ -178,6 +229,15 @@
     x: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z',
     discord: 'M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.74 19.74 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z',
   };
+  on('[data-partner-links]', (el) => {
+    el.innerHTML = S.links.partners.map((link) =>
+      '<li><a class="partner-link" href="' + esc(link.url) + '" target="_blank" rel="sponsored noopener noreferrer">' +
+        '<span class="partner-monogram" aria-hidden="true">' + esc(link.brand[0]) + '</span>' +
+        '<span><span class="partner-brand">' + esc(link.brand) + '<span class="partner-tag">Partner link</span></span>' +
+          '<span class="partner-title">' + esc(link.title) + '</span></span>' +
+        '<span class="partner-arrow" aria-hidden="true">&#8599;</span>' +
+      '</a></li>').join('');
+  });
   on('[data-socials]', (el) => {
     el.innerHTML = S.socials.map((s) =>
       '<li><a href="' + esc(s.url) + '" target="_blank" rel="noopener noreferrer">' +

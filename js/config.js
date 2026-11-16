@@ -49,6 +49,26 @@ window.SITE = {
     { icon: 'discord',   label: 'Discord',   handle: 'Community',  url: 'https://discord.gg/Th8dskDK7v' },
   ],
 
+  /* --- Link hub: visible partner links copied from her live Linktree. -----
+     Checked 2026-11-16. Preserve the full destinations and offer wording.
+     Private sponsorship contracts were not available for review.           */
+  links: {
+    source: 'https://linktr.ee/ilyynina',
+    checked: '2026-11-16',
+    partners: [
+      {
+        brand: 'Blacklyte',
+        title: 'Blacklyte Athena Pro Gaming Chair | Code Nina10 for 10% off',
+        url: 'http://blacklyte.com/Nina10',
+      },
+      {
+        brand: 'Nanoleaf',
+        title: "code 'nina10' for 15% off nanoleafs",
+        url: 'https://us-shop.nanoleaf.me/products/shapes-black-hexagons-smarter-kit-9pk',
+      },
+    ],
+  },
+
   /* --- Clips -------------------------------------------------------------
      Picked from her clips page. Several top clips are titled "t", "a" or
      ".....", so these are the ones a visitor can read. Titles tidied by me.
@@ -148,6 +168,40 @@ window.SITE = {
     { group: 'Build', keys: [['Wall', 'Z'], ['Floor', 'X'], ['Stairs', 'C'], ['Roof', 'V'], ['Trap', 'L-Alt'], ['Edit', 'G'], ['Rotate', 'R']] },
     { group: 'Combat', keys: [['Pickaxe', '1'], ['Slot 1', 'M5'], ['Slot 2', 'M4'], ['Slot 3', '4'], ['Slot 4', '5'], ['Slot 5', 'Q'], ['Use', 'E']] },
     { group: 'Move', keys: [['Jump', 'Space'], ['Sprint', 'L-Shift'], ['Crouch', 'L-Ctrl']] },
+  ],
+
+  /* --- Photos: local copies of her own public Twitter photos. ------------
+     Collected 2026-11-16. Each photo links to its original post; sourceImage
+     keeps the original Twitter image URL for future replacement.           */
+  photos: [
+    {
+      src: 'assets/photos/new-hair.jpg', width: 900, height: 1200,
+      alt: 'Nina showing her new hairstyle.', caption: 'New hair',
+      date: '2026-10-22', dateLabel: 'Oct 22, 2026',
+      url: 'https://x.com/ilyynina/status/2113339664837091676',
+      sourceImage: 'https://pbs.twimg.com/media/HVQXOWTa8AA5Xw7.jpg?name=orig',
+    },
+    {
+      src: 'assets/photos/halloween.jpg', width: 900, height: 1200,
+      alt: 'Nina in a deer costume for Halloween.', caption: 'Happy Halloween',
+      date: '2026-11-01', dateLabel: 'Nov 1, 2026',
+      url: 'https://x.com/ilyynina/status/2116686868217799147',
+      sourceImage: 'https://pbs.twimg.com/media/HV_7e84WIAAYlih.jpg?name=orig',
+    },
+    {
+      src: 'assets/photos/october.jpg', width: 1200, height: 900,
+      alt: 'Nina taking a selfie in a leopard-print top.', caption: 'October camera roll',
+      date: '2026-10-08', dateLabel: 'Oct 8, 2026',
+      url: 'https://x.com/ilyynina/status/2108258055075008868',
+      sourceImage: 'https://pbs.twimg.com/media/HUIJg7QacAAoRTV.jpg?name=orig',
+    },
+    {
+      src: 'assets/photos/milk-cup-medal.jpg', width: 900, height: 1200,
+      alt: 'Nina holding her Milk Cup champion medal.', caption: 'The Milk Cup, 2025',
+      date: '2025-10-19', dateLabel: 'Oct 19, 2025',
+      url: 'https://x.com/ilyynina/status/1979721646832603542',
+      sourceImage: 'https://pbs.twimg.com/media/G3liV2ZWQAEcLDs.jpg?name=orig',
+    },
   ],
 
   /* --- About: her own Twitch panel, lightly tidied. ---------------------- */
