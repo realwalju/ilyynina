@@ -1,0 +1,21 @@
+{
+  "name": "ilyynina",
+  "version": "1.0.0",
+  "description": "Nina (ilyynina) - XSET Fortnite pro, Twitch partner and Milk Cup 2025 champion",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'This is a static HTML site. Open index.html in a browser or use a local server.'",
+    "build": "echo 'No build step required for static site.'",
+    "preview": "echo 'Deploy to Vercel to preview with analytics.'"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^1.4.1"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "gaming",
+    "esports",
+    "fortnite",
+    "twitch"
+  ]
+}
