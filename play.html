@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Play | Nina</title>
-  <meta name="description" content="A future game for Nina's community. In the works.">
+  <title>Switchback | Nina's arcade</title>
+  <meta name="description" content="Ride a pixel-art Colorado slope. Dodge the pines, collect mint crystals and beat your best run.">
   <meta name="theme-color" content="#0a0b0c">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -14,40 +14,46 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@500;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/arcade.css">
 </head>
 <body data-page="play">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header" data-header></header>
-  <main id="main">
-    <section class="page-head" data-emote-sprinkles="Bonk Froggy">
-      <div class="wrap">
-        <span class="kicker" data-kicker-emote="Bonk">Play</span>
-        <h1><span class="chrome">Play</span></h1>
-        <p>A little space for something fun.</p>
+  <main id="main" class="arcade wrap">
+    <header class="arcade-heading">
+      <div><span class="kicker">Nina's arcade</span><h1>Switchback</h1></div>
+      <p>A Colorado downhill run. Pick a line through the pines and pocket every mint crystal you can.</p>
+    </header>
+    <section class="cabinet" aria-label="Switchback game" id="game">
+      <div class="instrument-panel">
+        <dl><div><dt>Distance</dt><dd id="distance">0 m</dd></div>
+          <div><dt>Score</dt><dd id="score">0</dd></div>
+          <div><dt>Lives</dt><dd id="lives">3</dd></div></dl>
+        <div class="record"><span>Personal best</span><strong id="best">—</strong></div>
       </div>
-    </section>
-    <section class="section" data-emote-sprinkles="Coffee Cozy1 Wave" aria-labelledby="play-status">
-      <div class="wrap">
-        <div class="play-placeholder">
-          <div class="play-emotes" aria-hidden="true">
-            <img data-emote-img="Coffee" data-emote-static width="112" height="112" alt="" decoding="async">
-            <img data-emote-img="Bonk" data-emote-static width="112" height="112" alt="" decoding="async">
-            <img data-emote-img="Froggy" data-emote-static width="112" height="112" alt="" decoding="async">
+      <canvas id="slope" tabindex="0" aria-label="Snowboard course" aria-describedby="controls"></canvas>
+      <div class="course-progress" aria-hidden="true"><i id="progress"></i></div>
+      <div class="game-console">
+        <div class="game-message"><p id="run-status" role="status">At the summit</p><p id="run-detail">Reach the lodge at 1,000 m.</p></div>
+        <div class="game-actions">
+          <div class="steering" aria-label="Steering" role="group">
+            <button type="button" id="left" aria-label="Move one lane left" disabled>◀</button>
+            <button type="button" id="right" aria-label="Move one lane right" disabled>▶</button>
           </div>
-          <span class="kicker">Work in progress</span>
-          <h2 id="play-status">In the works</h2>
-          <p>This is the spot for a future game. The idea is still taking shape.</p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="watch.html">Watch Nina</a>
-            <a class="btn btn-ghost" href="emotes.html">Explore the emotes</a>
-          </div>
+          <button type="button" id="action" class="btn btn-primary" disabled>Start run</button>
         </div>
       </div>
     </section>
+    <noscript><p>Enable JavaScript to play Switchback.</p></noscript>
+    <div class="trail-guide" id="controls">
+      <p><strong>Steer</strong> Use <kbd>←</kbd> <kbd>→</kbd>, A and D, or the lane buttons. Press P to pause.</p>
+      <p><strong>Score</strong> Earn a point per metre and 100 per crystal. Each pine costs one life.</p>
+    </div>
   </main>
   <footer class="site-footer" data-footer></footer>
   <script src="js/config.js"></script>
   <script src="js/site.js"></script>
+  <script type="module" src="js/game/play.mjs"></script>
   <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>

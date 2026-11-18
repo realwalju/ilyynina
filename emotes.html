@@ -33,7 +33,13 @@
     <section class="section" data-emote-sprinkles="Froggy Dance Howdy">
       <div class="wrap">
         <p class="copy-toast" role="status" data-emote-status></p>
-        <ul class="emote-grid" data-emote-grid></ul>
+        <div class="emote-tools">
+          <label for="emote-search">Find an emote
+            <input id="emote-search" type="search" placeholder="Name or chat token" autocomplete="off" aria-controls="emote-list">
+          </label>
+          <p role="status" data-emote-count></p>
+        </div>
+        <ul class="emote-grid" id="emote-list" data-emote-grid></ul>
       </div>
     </section>
 

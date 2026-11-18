@@ -27,6 +27,7 @@
         <span class="kicker" data-kicker-emote="Clip">Watch</span>
         <h1><span class="chrome">Watch</span></h1>
         <p>Recent streams and the clips chat keeps coming back to.</p>
+        <nav class="section-nav" aria-label="Watch sections"><a href="#live">Live channel</a><a href="#streams">Broadcasts</a><a href="#clips">Clips</a></nav>
       </div>
     </section>
 
@@ -36,13 +37,13 @@
           <div class="live-screen" data-live-screen>
             <div class="live-state">
               <img class="live-emote" data-emote-img="NightOwl" width="112" height="112" alt="" aria-hidden="true">
-              <p class="live-msg" data-live-title></p>
+              <p class="live-msg" data-live-title>Checking the channel…</p>
               <p class="live-sub" data-live-note></p>
             </div>
           </div>
           <footer class="live-bar">
             <div class="live-bar-main">
-              <span class="live-pill"><span class="live-dot" aria-hidden="true"></span><span data-live-pill>Offline</span></span>
+              <span class="live-pill"><span class="live-dot" aria-hidden="true"></span><span data-live-pill>Checking</span></span>
               <span class="live-channel">twitch.tv/ilyynina</span>
               <span class="live-meta" data-live-meta hidden></span>
             </div>
@@ -59,7 +60,7 @@
           <div>
             <span class="kicker" data-kicker-emote="Coffee">01 / Past broadcasts</span>
             <h2>Missed a stream?</h2>
-            <p>Her latest full broadcasts. Yes, those are the real titles.</p>
+            <p>Selected broadcasts from November 2026. Twitch keeps the current archive on her channel.</p>
           </div>
           <a class="btn btn-ghost btn-sm" href="https://www.twitch.tv/ilyynina/videos?filter=archives&sort=time" target="_blank" rel="noopener noreferrer">All videos on Twitch</a>
         </div>
@@ -86,6 +87,7 @@
 
   <script src="js/config.js"></script>
   <script src="js/site.js"></script>
+  <script type="module" src="js/live.mjs"></script>
   <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>

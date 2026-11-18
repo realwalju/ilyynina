@@ -1,0 +1,33 @@
+.arcade { padding-block: clamp(1.4rem,4vw,3.5rem) 2rem; }
+.arcade-heading, .game-console, .instrument-panel { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+.arcade-heading { align-items: end; margin-bottom: 1.4rem; }
+.arcade-heading h1 { font: 400 clamp(3.6rem,8vw,7rem)/1.04 var(--display); text-transform: uppercase; letter-spacing: -.025em; }
+.arcade-heading p { color: var(--text-muted); max-width: 30ch; margin-bottom: .4rem; }
+.cabinet { border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--panel); overflow: clip; }
+.instrument-panel { padding: .85rem clamp(1rem,3vw,2rem); }
+.instrument-panel dl { display: flex; gap: clamp(1rem,5vw,4rem); }
+.instrument-panel dt, .record span { display: block; font: .75rem/1.5 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); }
+.instrument-panel dd, .record strong { font: 700 1.2rem/1.4 var(--mono); font-variant-numeric: tabular-nums; }
+.record { color: var(--mint); text-align: right; }
+#slope, .arcade-poster { width: 100%; display: block; image-rendering: pixelated; }
+#slope { background: #92a9bc; height: clamp(190px,48svh,450px); }
+#slope:focus-visible { outline-offset: -4px; outline-color: #244958; }
+.course-progress { height: 4px; background: #41535a; }
+.course-progress i { display: block; height: 100%; background: var(--mint); transform: scaleX(0); transform-origin: left; }
+.game-console { padding: 1rem clamp(1rem,3vw,2rem); min-height: 6rem; }
+.game-message p:first-child { font-size: 1.2rem; font-weight: 800; }
+.game-message p + p { color: var(--text-muted); }
+.game-actions, .steering { display: flex; gap: .65rem; }
+.steering button { background: #22302e; border: 1px solid #446259; border-radius: .55rem; width: 3rem; min-height: 44px; color: var(--mint); touch-action: manipulation; }
+.steering button:disabled { opacity: .45; cursor: default; }
+#action { min-width: 8rem; }
+.trail-guide { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding: 1.2rem 0; color: var(--text-muted); }
+.trail-guide strong { color: var(--text); display: block; margin-bottom: .25rem; }
+.trail-guide kbd { font: 1rem var(--mono); }
+@media (max-width: 680px) {
+  .arcade-heading, .game-console { display: grid; gap: .7rem; }
+  .arcade-heading p { max-width: 46ch; margin: 0; }
+  .game-actions { justify-content: space-between; }
+  .trail-guide { grid-template-columns: 1fr; gap: .8rem; }
+  .instrument-panel { gap: .5rem; }
+}

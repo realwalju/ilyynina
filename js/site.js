@@ -25,7 +25,7 @@
   }
 
   /* --- Header + footer: one copy here instead of one per page. ------------ */
-  const PAGES = [['home', 'index.html', 'Home'], ['watch', 'watch.html', 'Watch'], ['play', 'play.html', 'Play', 'In the works'], ['emotes', 'emotes.html', 'Emotes'],
+  const PAGES = [['home', 'index.html', 'Home'], ['watch', 'watch.html', 'Watch'], ['play', 'play.html', 'Play'], ['emotes', 'emotes.html', 'Emotes'],
                  ['setup', 'setup.html', 'Setup'], ['about', 'about.html', 'About'], ['links', 'links/', 'Links']];
   const here = document.body.dataset.page;
   on('[data-header]', (el) => {
@@ -33,10 +33,8 @@
       '<div class="wrap nav">' +
         '<a class="brand" href="index.html" aria-label="ilyynina, home">' +
           '<span class="brand-chrome">NINA</span><span class="brand-handle">ilyynina</span></a>' +
-        '<nav class="nav-menu" aria-label="Main">' + PAGES.map((p) =>
-          '<a href="' + p[1] + '"' + (p[0] === here ? ' aria-current="page"' : '') +
-            (p[3] ? ' aria-label="' + p[2] + ' - ' + p[3] + '" title="' + p[3] + '"' : '') + '>' + p[2] +
-            (p[3] ? '<span class="nav-status" aria-hidden="true">WIP</span>' : '') + '</a>').join('') +
+        '<nav class="nav-menu" aria-label="Main">' + PAGES.map(([id, href, label]) =>
+          '<a href="' + href + '"' + (id === here ? ' aria-current="page"' : '') + '>' + label + '</a>').join('') +
         '</nav>' +
         '<a class="btn btn-primary nav-cta" href="' + TWITCH + '" target="_blank" rel="noopener noreferrer">Watch on Twitch</a>' +
       '</div>';
@@ -86,6 +84,16 @@
   }
 
   /* --- Static fills ------------------------------------------------------- */
+  document.addEventListener('error', (event) => {
+    const img = event.target;
+    if (!(img instanceof HTMLImageElement)) return;
+    if (img.getAttribute('src') === S.avatar) {
+      img.src = 'assets/photos/nina-portrait.jpg';
+      img.alt = 'Nina';
+    } else if (img.alt === '' && img.src.includes('/emoticons/')) {
+      img.style.visibility = 'hidden';
+    }
+  }, true);
   on('[data-tagline]', (el) => { el.textContent = S.tagline; });
   on('[data-avatar]', (el) => { el.src = S.avatar; });
   $$('[data-emote-img]').forEach((img) => {
@@ -129,7 +137,7 @@
   $$('[data-about-photo]').forEach((el) => {
     el.href = TWITCH;
     el.innerHTML = photoImage({ src: S.avatar, width: 600, height: 600, alt: "Nina's Twitch profile picture." }) +
-      '<span class="portrait-caption"><span>Nina</span><span>Twitch profile <span aria-hidden="true">&#8599;</span></span></span>';
+      '<span class="portrait-caption"><span>Nina</span><span>Twitch channel <span aria-hidden="true">&#8599;</span></span></span>';
   });
   $$('[data-photos]').forEach((el) => {
     el.innerHTML = S.photos.map((p) =>
@@ -198,6 +206,14 @@
   });
 
   /* --- Setup page --------------------------------------------------------- */
+  on('[data-copy-settings]', (btn) => {
+    btn.addEventListener('click', () => {
+      const settings = S.settings.map(([label, value]) => label + ': ' + value).join('\n');
+      copy(settings, (ok) => {
+        $('[data-settings-status]').textContent = ok ? 'Settings copied.' : 'Clipboard unavailable. Select the settings below to copy them.';
+      });
+    });
+  });
   on('[data-settings]', (el) => {
     el.innerHTML = S.settings.map((s) =>
       '<li><span class="tile-value">' + esc(s[1]) + '</span><span class="tile-label">' + esc(s[0]) + '</span></li>').join('');
@@ -278,7 +294,8 @@
           '<span class="clip-no">CLIP ' + String(i + 1).padStart(2, '0') + '</span>' +
           '<span class="clip-title">' + esc(c.title) + '</span>' + PLAY +
         '</button>' +
-        '<p class="clip-meta">' + esc(c.meta) + '</p>' +
+        '<p class="clip-meta">' + esc(c.meta) + ' &middot; <a href="https://clips.twitch.tv/' +
+          encodeURIComponent(c.slug) + '" target="_blank" rel="noopener noreferrer">Open clip on Twitch</a></p>' +
       '</li>').join('');
     grid.addEventListener('click', (e) => {
       const btn = e.target.closest('.clip-facade');
@@ -294,7 +311,8 @@
           '<span class="vod-length">' + esc(v.length) + '</span>' + PLAY +
         '</button>' +
         '<h3 class="vod-title">' + esc(v.title) + '</h3>' +
-        '<p class="clip-meta">' + esc(v.when) + '</p>' +
+        '<p class="clip-meta">' + esc(v.when) + ' &middot; <a href="https://www.twitch.tv/videos/' +
+          encodeURIComponent(v.id) + '" target="_blank" rel="noopener noreferrer">Open broadcast on Twitch</a></p>' +
       '</li>').join('');
     // A VOD thumb vanishes when Twitch expires it: fall back to the dotted tile.
     grid.addEventListener('error', (e) => { if (e.target.tagName === 'IMG') e.target.remove(); }, true);
@@ -325,6 +343,19 @@
         '<img src="' + emoteUrl(e[0]) + '" width="112" height="112" alt="" loading="lazy">' +
         '<span>ilyyni' + esc(e[0]) + '</span>' +
       '</button></li>').join('');
+    const search = $('#emote-search');
+    const items = Array.from(grid.children);
+    function filter() {
+      const query = search.value.trim().toLowerCase();
+      let count = 0;
+      items.forEach((item) => {
+        item.hidden = !item.textContent.toLowerCase().includes(query);
+        if (!item.hidden) count++;
+      });
+      $('[data-emote-count]').textContent = count ? count + (count === 1 ? ' emote' : ' emotes') : 'No matches. Try a shorter name.';
+    }
+    search.addEventListener('input', filter);
+    filter();
     grid.addEventListener('click', (e) => {
       const btn = e.target.closest('button');
       if (!btn) return;
@@ -338,73 +369,5 @@
         status._t = setTimeout(() => status.classList.remove('is-on'), 2200);
       });
     });
-  });
-
-  /* --- decapi.me: keyless, CORS-open mirror of the Twitch API. ------------ */
-  function decapi(path) {
-    return fetch('https://decapi.me/twitch/' + path + '/' + encodeURIComponent(S.twitchHandle))
-      .then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); });
-  }
-
-  /* --- Follower goal ------------------------------------------------------ */
-  on('[data-goal]', () => {
-    function paint(count) {
-      $('[data-goal-label]').textContent = S.goal.label;
-      $('[data-goal-count]').textContent =
-        count.toLocaleString('en-US') + ' / ' + S.goal.target.toLocaleString('en-US');
-      $('[data-goal-bar]').style.width = Math.min(100, (count / S.goal.target) * 100).toFixed(1) + '%';
-      const track = $('.goal-track');
-      track.setAttribute('aria-valuemax', S.goal.target);
-      track.setAttribute('aria-valuenow', count);
-    }
-    paint(S.goal.saved);
-    decapi('followcount').then((text) => {
-      const n = parseInt(text.replace(/[^\d]/g, ''), 10);
-      if (n > 0) paint(n);
-    }).catch(() => { /* keep the saved number */ });
-  });
-
-  /* --- Live card ---------------------------------------------------------- */
-  on('[data-live-card]', (card) => {
-    let mounted = false;
-    function render(state, info) {
-      card.dataset.state = state;
-      on('[data-live-eyebrow]', (el) => {
-        el.classList.toggle('is-live', state === 'live');
-        $('[data-live-eyebrow-text]').textContent = state === 'live' ? 'Live now on Twitch' : 'XSET Fortnite';
-      });
-      $('[data-live-pill]').textContent = state === 'live' ? 'Live' : state === 'offline' ? 'Offline' : 'Status unknown';
-      const meta = $('[data-live-meta]');
-      meta.hidden = state !== 'live';
-      if (state === 'live') {
-        meta.textContent = [info.game, info.title].filter(Boolean).join(' - ');
-        if (!mounted) {
-          const frame = document.createElement('iframe');
-          frame.src = 'https://player.twitch.tv/?channel=' + encodeURIComponent(S.twitchHandle) +
-                      '&parent=' + encodeURIComponent(parent()) + '&muted=true';
-          frame.allow = 'autoplay; fullscreen';
-          frame.allowFullscreen = true;
-          frame.title = 'ilyynina live on Twitch';
-          $('[data-live-screen]').replaceChildren(frame);
-          mounted = true;
-        }
-        return;
-      }
-      if (mounted) return location.reload();   // stream ended: back to the offline card
-      $('[data-live-title]').textContent = state === 'offline' ? S.live.offlineTitle : S.live.unknownTitle;
-      $('[data-live-note]').textContent = state === 'offline' ? S.live.offlineNote : S.live.unknownNote;
-    }
-    function check() {
-      if (S.live.status === true) return render('live', {});
-      if (S.live.status === false) return render('offline');
-      decapi('uptime').then((uptime) => {
-        if (/offline/i.test(uptime)) return render('offline');
-        return Promise.all([decapi('game'), decapi('title')])
-          .then((p) => render('live', { game: p[0], title: p[1] }), () => render('live', {}));
-      }).catch(() => render('unknown'));   // a failed check never claims "offline"
-    }
-    render('offline');
-    check();
-    if (S.live.status === 'auto') setInterval(check, 90000);
   });
 })();

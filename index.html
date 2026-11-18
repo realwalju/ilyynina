@@ -44,7 +44,7 @@
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
               Watch on Twitch
             </a>
-            <a class="btn btn-ghost" href="#clips">See the clips</a>
+            <a class="btn btn-ghost" href="play.html">Play Switchback</a>
           </div>
 
           <div class="creator-code">
@@ -59,7 +59,7 @@
 
         <div class="hero-card">
           <div class="plate">
-            <img class="plate-photo" data-avatar width="600" height="600" alt="Nina" fetchpriority="high">
+            <img class="plate-photo" src="assets/photos/nina-portrait.jpg" width="900" height="1200" alt="Nina" fetchpriority="high">
             <div class="plate-strip">
               <span>ilyynina</span>
               <span class="plate-team">XSET</span>
@@ -93,13 +93,13 @@
           <div class="live-screen" data-live-screen>
             <div class="live-state">
               <img class="live-emote" data-emote-img="NightOwl" width="112" height="112" alt="" aria-hidden="true">
-              <p class="live-msg" data-live-title></p>
+              <p class="live-msg" data-live-title>Checking the channel…</p>
               <p class="live-sub" data-live-note></p>
             </div>
           </div>
           <footer class="live-bar">
             <div class="live-bar-main">
-              <span class="live-pill"><span class="live-dot" aria-hidden="true"></span><span data-live-pill>Offline</span></span>
+              <span class="live-pill"><span class="live-dot" aria-hidden="true"></span><span data-live-pill>Checking</span></span>
               <span class="live-channel">twitch.tv/ilyynina</span>
               <span class="live-meta" data-live-meta hidden></span>
             </div>
@@ -108,6 +108,16 @@
           </footer>
         </article>
       </div>
+    </section>
+
+    <section class="wrap arcade-feature" aria-labelledby="featured-game">
+      <div class="arcade-feature-copy">
+        <span class="kicker">Nina's arcade</span>
+        <h2 id="featured-game">Switchback</h2>
+        <p>One kilometre of Colorado powder. Carve between the pines, collect mint crystals and chase your personal best.</p>
+        <a class="btn btn-primary" href="play.html">Start a run</a>
+      </div>
+      <canvas class="arcade-poster" aria-label="Pixel-art snowboarder on a mountain at sunset" role="img"></canvas>
     </section>
 
     <!-- Highlights ------------------------------------------------------ -->
@@ -176,7 +186,7 @@
         <div class="section-head">
           <span class="kicker" data-kicker-emote="Froggy">05 / In chat</span>
           <h2>The Emotes</h2>
-          <p>What chat types all stream. Hover to hold the rail still, click one to spam it.</p>
+          <p>Hover to hold the rail still, or <a href="emotes.html">browse and search every emote</a>.</p>
         </div>
       </div>
       <div class="emote-rail"><ul class="emote-track" data-emotes></ul></div>
@@ -207,6 +217,8 @@
 
   <script src="js/config.js"></script>
   <script src="js/site.js"></script>
+  <script type="module" src="js/game/poster.mjs"></script>
+  <script type="module" src="js/live.mjs"></script>
   <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
