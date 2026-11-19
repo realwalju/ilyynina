@@ -41,5 +41,5 @@ module.exports = a.handler(async (req,res) => {
   const score = replayScore(run.day,history);
   if (score === null) throw new a.HttpError(400,'invalid_run');
   const result = await rankings.record(user,run.day,score);
-  a.json(res,200,{...result,score,day:run.day});
+  a.json(res,200,{...result,score,day:run.day,today:day});
 });

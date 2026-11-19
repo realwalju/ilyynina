@@ -1,3 +1,5 @@
+import { rankTarget } from './patch-score.mjs';
+
 const byId = id => document.getElementById(id);
 const formatPoints = value => Number(value).toLocaleString();
 const storageKey = 'ilyynina.patch.pending.v1';
@@ -50,6 +52,8 @@ export function leaderboard(onStart) {
     const hasSubmission = Boolean(user && pending[user.id]);
     byId('rank-start').hidden = !user || playing;
     byId('rank-start').disabled = busy || hasSubmission || !available;
+    byId('replay-ranked').disabled = !user || playing || busy || hasSubmission || !available;
+    byId('replay-practice').disabled = busy;
     byId('signout').hidden = !user;
     byId('signout').disabled = playing || busy;
     byId('retry-score').hidden = !hasSubmission;
@@ -90,11 +94,16 @@ export function leaderboard(onStart) {
     busy = true;
     controls();
     byId('submission').textContent = 'Verifying your circuit…';
+    byId('rank-target').textContent = '';
     try {
       const result = await api('finish', run);
       remember(player, null);
-      byId('submission').textContent = formatPoints(result.score) + ' verified points. Daily best '
-        + formatPoints(result.best) + '. All-time gain +' + formatPoints(result.added) + '.';
+      const summary = [formatPoints(result.score) + ' verified points.',
+        'Daily best ' + formatPoints(result.best) + (result.rank ? ' · #' + result.rank : '') + '.',
+        'All-time gain +' + formatPoints(result.added) + '.'];
+      byId('submission').textContent = summary.join(' ');
+      byId('rank-target').textContent = result.today && result.day !== result.today
+        ? 'A new daily circuit is open.' : rankTarget(result, run.history.map(panel => panel.length));
     } catch (err) {
       if (err.status === 403 || err.status === 400) {
         remember(player, null);
@@ -109,19 +118,22 @@ export function leaderboard(onStart) {
     }
   }
 
-  byId('rank-start').addEventListener('click', async () => {
-    if (busy || playing) return;
+  async function startRanked() {
+    if (!user || busy || playing || pending[user.id] || !available) return;
     busy = true;
     controls();
     try {
       const run = await api('start', {});
       playing = true;
       byId('submission').textContent = '';
+      byId('rank-target').textContent = '';
       onStart(run);
     } catch {
       byId('submission').textContent = 'Could not start the daily circuit. Refresh standings and try again.';
     } finally { busy = false; controls(); }
-  });
+  }
+  byId('rank-start').addEventListener('click', startRanked);
+  byId('replay-ranked').addEventListener('click', startRanked);
 
   byId('signout').addEventListener('click', async () => {
     busy = true;

@@ -1,7 +1,20 @@
 import { PANELS, rotate, trace, wiring } from './patch-bay.mjs';
 
 export const MAX_ACTIONS = 512;
-export const panelPoints = (index, turns) => (index + 1) * 200 + Math.max(0, 500 - turns * 10);
+const pointsPerTurn = 10;
+const bonusTurns = 50;
+export const panelPoints = (index, turns) => (index + 1) * 200 + Math.max(0, bonusTurns - turns) * pointsPerTurn;
+
+export function rankTarget({score, nextPlace}, turns) {
+  if (!nextPlace) return '';
+  const gap = nextPlace.score - score;
+  const place = '#' + nextPlace.rank;
+  if (turns.some(count => count > bonusTurns)) {
+    return 'Earn ' + gap.toLocaleString() + ' more points than this run to tie ' + place + '.';
+  }
+  const savings = gap / pointsPerTurn;
+  return 'Save ' + savings + (savings === 1 ? ' turn' : ' turns') + ' on this run to tie ' + place + '.';
+}
 
 // Rotate the same valid layouts differently each day. Never start with a
 // completed circuit, even when an alternate route happens to line up.

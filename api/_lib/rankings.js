@@ -15,7 +15,12 @@ if delta > 0 then
   redis.call('ZINCRBY', KEYS[2], delta, ARGV[1])
 end
 redis.call('HSET', KEYS[3], ARGV[1], ARGV[3])
-return {math.max(old,score),delta}
+local best = math.max(old,score)
+local rank = redis.call('ZCOUNT', KEYS[1], '('..best, '+inf') + 1
+local higher = redis.call('ZRANGEBYSCORE', KEYS[1], '('..best, '+inf', 'WITHSCORES', 'LIMIT', 0, 1)
+if #higher == 0 then return {best,delta,rank,0,0} end
+local nextRank = redis.call('ZCOUNT', KEYS[1], '('..higher[2], '+inf') + 1
+return {best,delta,rank,tonumber(higher[2]),nextRank}
 `;
 const READ = `
 local scores = redis.call('ZREVRANGE', KEYS[1], 0, 9, 'WITHSCORES')
@@ -30,9 +35,9 @@ local rank = own and redis.call('ZCOUNT', KEYS[1], '('..own, '+inf') + 1 or 0
 return {rows,own or '0',rank}
 `;
 async function record(user,day,score) {
-  const [best,added] = await redis(['EVAL',UPDATE,3,daily(day),base+'total',base+'profiles',
+  const [best,added,rank,nextScore,nextRank] = await redis(['EVAL',UPDATE,3,daily(day),base+'total',base+'profiles',
     user.id,score,JSON.stringify({login:user.login,name:user.name})]);
-  return {best,added};
+  return {best,added,rank,nextPlace:nextRank ? {rank:nextRank,score:nextScore} : null};
 }
 async function board(user,day,period) {
   const [rows,points,rank] = await redis(['EVAL',READ,2,period==='total' ? base+'total' : daily(day),

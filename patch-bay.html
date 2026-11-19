@@ -24,7 +24,7 @@
       <p id="practice-best" hidden></p>
       <a href="#leaderboard">Daily challenge &amp; leaderboard</a> · <a href="play.html">Play Raid Relay</a>
     </header>
-    <section class="rack" aria-labelledby="panel-name">
+    <section id="game-rack" class="rack" aria-labelledby="panel-name">
       <header class="rack-head">
         <div><span id="panel-number">Panel 1 of 3</span><h2 id="panel-name">Camera feed</h2></div>
         <div class="meter"><span>Points</span><strong id="points">0</strong></div>
@@ -37,6 +37,18 @@
         <button id="next" class="next" type="button" hidden>Next panel</button>
       </footer>
     </section>
+    <section id="results" class="rack results" aria-labelledby="results-title" hidden>
+      <h2 id="results-title" tabindex="-1">Circuit complete</h2>
+      <p class="result-total"><strong id="result-total"></strong> points</p>
+      <table aria-label="Panel results"><thead><tr><th scope="col">Panel</th><th scope="col">Turns</th><th scope="col">Points</th></tr></thead><tbody id="panel-results"></tbody></table>
+      <p id="result-personal"></p>
+      <div id="result-feedback"></div>
+      <div class="rack-foot">
+        <button id="replay-ranked" class="next" type="button" hidden>Replay today’s circuit</button>
+        <button id="replay-practice" class="next" type="button">Replay practice</button>
+        <a href="#leaderboard">View standings</a>
+      </div>
+    </section>
     <p id="instructions">Tap a socket to turn it clockwise. On a keyboard, use the arrow keys to move between sockets and Space to rotate.</p>
     <section id="leaderboard" class="standings" aria-labelledby="standings-title">
       <h2 id="standings-title" tabindex="-1">Patch Bay leaderboard</h2>
@@ -46,10 +58,12 @@
         <a id="signin" href="/api/arcade?action=login" hidden>Sign in with Twitch</a>
         <button id="rank-start" type="button" hidden>Start daily circuit</button>
         <button id="signout" type="button" hidden>Sign out</button>
-        <button id="retry-score" type="button" hidden>Retry submission</button>
       </div>
       <p id="account" role="status"></p>
-      <p id="submission" role="status"></p>
+      <div id="board-feedback"><div id="score-feedback">
+        <div role="status"><p id="submission"></p><p id="rank-target"></p></div>
+        <button id="retry-score" type="button" hidden>Retry submission</button>
+      </div></div>
       <label>Standings <select id="period"><option value="day">Today (UTC)</option><option value="total">All time</option></select></label>
       <p id="board-status" role="status">Loading standings…</p>
       <ol id="rank-rows"></ol>

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import arcade from '../api/arcade.js';
 import callback from '../api/auth/callback.js';
 import auth from '../api/_lib/arcade.js';
-import { dailyPanels, MAX_ACTIONS, panelPoints, replayScore } from '../js/game/patch-score.mjs';
+import { dailyPanels, MAX_ACTIONS, panelPoints, rankTarget, replayScore } from '../js/game/patch-score.mjs';
 import { rotate, trace, wiring } from '../js/game/patch-bay.mjs';
 
 function solution(panel) {
@@ -40,6 +40,13 @@ test('daily circuits are stable, start disconnected and award efficiency per pan
 });
 
 const site = 'https://nina.example';
+test('rank targets use the last run, respect exhausted bonuses and handle first place', () => {
+  const result = {score: 2000, best: 2020, nextPlace: {rank: 11, score: 2030}};
+  assert.match(rankTarget(result, [9, 12, 18]), /3 turns.*tie #11/);
+  assert.match(rankTarget(result, [51, 12, 18]), /30 more points.*tie #11/);
+  assert.match(rankTarget({...result, score: 2020}, [9, 12, 18]), /1 turn on/);
+  assert.equal(rankTarget({...result, nextPlace: null}, [9, 12, 18]), '');
+});
 async function invoke(handler, action, {method = 'GET', cookie = '', query = {}, body, origin = site} = {}) {
   const headers = {};
   const res = {
@@ -77,7 +84,7 @@ test('Twitch identity binds a verified circuit to the player who started it', as
         const command = JSON.parse(options.body);
         if (command[2] === 2) return Response.json({result: [[], '0', 0]});
         updates.push(command.slice(6));
-        return Response.json({result: [command[7], command[7]]});
+        return Response.json({result: [command[7], command[7], 4, command[7] + 20, 2]});
       }
       default: throw Error('Unexpected upstream');
     }
@@ -113,6 +120,8 @@ test('Twitch identity binds a verified circuit to the player who started it', as
   assert.equal(updates.length, 0);
   const result = await finish({ticket, history, score: 30000});
   assert.equal(result.data.score, replayScore(day, history));
+  assert.equal(result.data.rank, 4);
+  assert.deepEqual(result.data.nextPlace, {rank: 2, score: result.data.score + 20});
   assert.deepEqual(updates, [['42', result.data.score, JSON.stringify({login: 'viewer', name: 'Viewer'})]]);
   assert.match((await invoke(arcade, 'logout', state)).headers['Set-Cookie'][0], /Max-Age=0/);
 });

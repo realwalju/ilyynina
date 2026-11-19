@@ -7,6 +7,7 @@ const board = byId('sockets');
 const next = byId('next');
 let stage = 0;
 let panels = PANELS, ranked = null, history = [], banked = 0;
+let panelTurns = [];
 const practiceKey = 'ilyynina.patch.practice-best.v1';
 let practiceBest = 0;
 try { practiceBest = Number(localStorage.getItem(practiceKey)) || 0; }
@@ -22,13 +23,55 @@ const ranks = leaderboard(run => {
   ranked = run;
   panels = dailyPanels(run.day);
   history = panels.map(() => []);
-  stage = 0;
-  banked = 0;
-  byId('mode').textContent = 'Ranked daily circuit · '+run.day;
-  showPracticeBest();
-  openPanel(true);
+  startCircuit('Ranked daily circuit · ' + run.day);
 });
 let sockets, buttons, moves, connected;
+
+function startCircuit(mode) {
+  stage = 0;
+  banked = 0;
+  panelTurns = [];
+  byId('results').hidden = true;
+  byId('game-rack').hidden = false;
+  byId('instructions').hidden = false;
+  byId('board-feedback').append(byId('score-feedback'));
+  byId('mode').textContent = mode;
+  showPracticeBest();
+  openPanel(true);
+}
+
+function finishCircuit() {
+  const score = banked + panelPoints(stage, moves);
+  const results = byId('panel-results');
+  results.replaceChildren();
+  panels.forEach((panel, index) => {
+    const row = results.insertRow();
+    const label = document.createElement('th');
+    label.scope = 'row';
+    label.textContent = panel.name;
+    row.append(label);
+    row.insertCell().textContent = panelTurns[index];
+    row.insertCell().textContent = panelPoints(index, panelTurns[index]).toLocaleString();
+  });
+  byId('result-total').textContent = score.toLocaleString();
+  byId('result-personal').textContent = '';
+  byId('replay-ranked').hidden = !ranked;
+  byId('replay-practice').textContent = ranked ? 'Play practice' : 'Replay practice';
+  byId('results').hidden = false;
+  byId('instructions').hidden = true;
+  byId('game-rack').hidden = true;
+  byId('results-title').focus();
+  if (ranked) {
+    byId('result-feedback').append(byId('score-feedback'));
+    ranks.finish(ranked, history);
+  } else if (panels === PANELS) {
+    practiceBest = Math.max(practiceBest, score);
+    try { localStorage.setItem(practiceKey, String(practiceBest)); }
+    catch { /* Keep the record in memory for this visit. */ }
+    byId('practice-best').hidden = true;
+    byId('result-personal').textContent = 'Practice best on this device · ' + practiceBest.toLocaleString() + ' pts';
+  }
+}
 
 function render() {
   const panel = panels[stage];
@@ -54,7 +97,6 @@ function render() {
     : 'Panel value · ' + panelPoints(stage,moves) + ' pts';
   if (byId('signal').textContent !== message) byId('signal').textContent = message;
   next.hidden = !live;
-  next.textContent = final ? (ranked ? 'View standings' : 'Play again') : 'Next panel';
 }
 
 function terminal(name, cell, column) {
@@ -109,16 +151,9 @@ board.addEventListener('click', event => {
   moves++;
   render();
   if (connected) {
-    next.focus();
-    if (stage === panels.length - 1) {
-      if (ranked) ranks.finish(ranked, history);
-      else if (panels === PANELS) {
-        practiceBest = Math.max(practiceBest, banked + panelPoints(stage,moves));
-        try { localStorage.setItem(practiceKey, String(practiceBest)); }
-        catch { /* Keep the record in memory for this visit. */ }
-        showPracticeBest();
-      }
-    }
+    panelTurns[stage] = moves;
+    if (stage === panels.length - 1) finishCircuit();
+    else next.focus();
   }
 });
 board.addEventListener('focusin', event => {
@@ -141,19 +176,15 @@ byId('reset').addEventListener('click', () => {
   openPanel(true, moves+1);
 });
 next.addEventListener('click', () => {
-  if (!connected) return;
-  const viewStandings = ranked && stage === panels.length - 1;
+  if (!connected || stage === panels.length - 1) return;
   banked += panelPoints(stage,moves);
-  stage = (stage + 1) % panels.length;
-  if (!stage) {
-    ranked = null;
-    panels = PANELS;
-    banked = 0;
-    byId('mode').textContent = 'Practice circuit';
-    showPracticeBest();
-  }
-  openPanel(!viewStandings);
-  if (viewStandings) byId('standings-title').focus();
+  stage++;
+  openPanel(true);
+});
+byId('replay-practice').addEventListener('click', () => {
+  ranked = null;
+  panels = PANELS;
+  startCircuit('Practice circuit');
 });
 showPracticeBest();
 openPanel();
