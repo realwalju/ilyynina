@@ -384,7 +384,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .arcade-feature-copy { padding: clamp(1.25rem, 3vw, 2.5rem); align-self: center; }
 .arcade-feature h2 { font: 400 clamp(2.75rem,5vw,4.5rem)/1.15 var(--display); text-transform: uppercase; }
 .arcade-feature p { color: var(--text-muted); margin: .6rem 0 1.2rem; max-width: 36ch; }
-.arcade-poster { width: 100%; height: 100%; min-height: 13rem; image-rendering: pixelated; background: #91aabe; }
+.arcade-poster { width: 100%; height: 100%; min-height: 13rem; max-height: 24rem; object-fit: cover; object-position: center 48%; background: #143135; }
 .copy-status:not(:empty) { color: var(--mint); margin-bottom: 1rem; }
 @media (max-width: 680px) {
   .arcade-feature { grid-template-columns: 1fr; }

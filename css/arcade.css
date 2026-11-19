@@ -1,33 +1,60 @@
-.arcade { padding-block: clamp(1.4rem,4vw,3.5rem) 2rem; }
-.arcade-heading, .game-console, .instrument-panel { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
-.arcade-heading { align-items: end; margin-bottom: 1.4rem; }
-.arcade-heading h1 { font: 400 clamp(3.6rem,8vw,7rem)/1.04 var(--display); text-transform: uppercase; letter-spacing: -.025em; }
-.arcade-heading p { color: var(--text-muted); max-width: 30ch; margin-bottom: .4rem; }
-.cabinet { border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--panel); overflow: clip; }
-.instrument-panel { padding: .85rem clamp(1rem,3vw,2rem); }
-.instrument-panel dl { display: flex; gap: clamp(1rem,5vw,4rem); }
-.instrument-panel dt, .record span { display: block; font: .75rem/1.5 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); }
-.instrument-panel dd, .record strong { font: 700 1.2rem/1.4 var(--mono); font-variant-numeric: tabular-nums; }
-.record { color: var(--mint); text-align: right; }
-#slope, .arcade-poster { width: 100%; display: block; image-rendering: pixelated; }
-#slope { background: #92a9bc; height: clamp(190px,48svh,450px); }
-#slope:focus-visible { outline-offset: -4px; outline-color: #244958; }
-.course-progress { height: 4px; background: #41535a; }
-.course-progress i { display: block; height: 100%; background: var(--mint); transform: scaleX(0); transform-origin: left; }
-.game-console { padding: 1rem clamp(1rem,3vw,2rem); min-height: 6rem; }
-.game-message p:first-child { font-size: 1.2rem; font-weight: 800; }
-.game-message p + p { color: var(--text-muted); }
-.game-actions, .steering { display: flex; gap: .65rem; }
-.steering button { background: #22302e; border: 1px solid #446259; border-radius: .55rem; width: 3rem; min-height: 44px; color: var(--mint); touch-action: manipulation; }
-.steering button:disabled { opacity: .45; cursor: default; }
-#action { min-width: 8rem; }
-.trail-guide { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding: 1.2rem 0; color: var(--text-muted); }
-.trail-guide strong { color: var(--text); display: block; margin-bottom: .25rem; }
-.trail-guide kbd { font: 1rem var(--mono); }
-@media (max-width: 680px) {
-  .arcade-heading, .game-console { display: grid; gap: .7rem; }
-  .arcade-heading p { max-width: 46ch; margin: 0; }
-  .game-actions { justify-content: space-between; }
-  .trail-guide { grid-template-columns: 1fr; gap: .8rem; }
-  .instrument-panel { gap: .5rem; }
+body[data-page="play"] {
+  background: radial-gradient(ellipse at 30% 40%, #152a29 0, #10191e 29%, #0a0d10 65%);
+}
+.arcade {
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.82fr); grid-template-rows:auto 1fr;
+  grid-template-areas:"machine heading" "machine console"; gap:1.5rem clamp(2rem,6vw,6rem);
+  align-items:start; max-width:1040px; padding-block:clamp(1rem,3vh,2rem) 2rem;
+}
+.arcade-heading { grid-area:heading; align-self:end; padding-top:clamp(.5rem,4vh,2rem); }
+.arcade-heading .kicker { font-size:.8rem; color:#ffc997; }
+.arcade-heading h1 { font:italic 400 clamp(3.8rem,7.6vw,7rem)/1.02 var(--display); text-transform:uppercase; letter-spacing:-.035em; margin:.5rem 0; }
+.arcade-heading h1 em { display:block; color:#c3afff; font-style:inherit; }
+.intro { color:#dce4de; font-size:1.1rem; }
+.next-game { display:inline-block; color:#c8b9fc; font-weight:700; font-size:.95rem; margin-top:.45rem; text-underline-offset:.25em; }
+.machine {
+  grid-area:machine; justify-self:center; width:min(100%,max(244px,calc((100svh - 206px) * .6977)),456px);
+  background:#161f25; border:2px solid #6b817f; border-radius:16px; overflow:clip;
+  box-shadow:0 4px 0 #071011, 0 18px 46px #0009;
+}
+.scoreboard { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.4rem 1rem; background:#11191c; border-bottom:2px solid #435855; }
+.scoreboard>div { display:flex; align-items:baseline; gap:.65rem; }
+.scoreboard span,.game-records dt { font:.82rem var(--mono); color:#ccd8d3; }
+.scoreboard strong { color:#9ff8ca; font:700 clamp(1rem,2vw,1.35rem) var(--mono); font-variant-numeric:tabular-nums; }
+#playfield { display:block; width:100%; height:auto; aspect-ratio:420/602; background:#162931; touch-action:none; user-select:none; -webkit-user-select:none; cursor:crosshair; }
+#playfield:focus-visible { outline-offset:-3px; }
+.machine-controls { display:grid; grid-template-columns:1fr 1.3fr 1fr; padding:.45rem; gap:.4rem; border-top:1px solid #37454e; background:#1c252c; }
+.machine-controls button,.sound { min-height:44px; border-radius:7px; font:700 .9rem var(--body); }
+.machine-controls button { border:1px solid #52665f; }
+.flip { background:#293730; color:#d6f3e2; user-select:none; -webkit-user-select:none; touch-action:none; }
+.flip.is-held { background:#a7f4d0; color:#132b23; }
+.flip:disabled { background:#26302e; border-color:#47534d; color:#aebcb3; cursor:default; }
+#action { color:#19132a; background:#c6adff; border-color:#e0cfff; }
+#action:hover { background:#dbcaff; }
+.console { grid-area:console; }
+.console h2 { font:400 1.4rem var(--display); text-transform:uppercase; letter-spacing:.035em; margin-bottom:.4rem; }
+.console p { color:#d0dcd6; }
+.console p strong { font:700 .92em var(--mono); color:#a6f3ce; }
+.lamp-bank { display:flex; align-items:center; gap:.6rem; margin:1rem 0 .65rem; }
+.lamp-bank li { --lamp:#a4f5ce; display:flex; gap:.6rem; align-items:center; justify-content:center; min-width:3.65rem; padding:.32rem .6rem; background:#172226; border:1px solid #3e4c50; border-radius:7px; color:#afbcba; font:bold .92rem var(--mono); }
+.lamp-bank li:nth-child(2) { --lamp:#bfadff; }
+.lamp-bank li:nth-child(3) { --lamp:#ffc078; }
+.lamp-bank li::before { content:''; width:.48rem; height:.48rem; border-radius:50%; background:#51615f; }
+.lamp-bank .is-lit { color:var(--lamp); border-color:var(--lamp); }
+.lamp-bank .is-lit::before { width:.65rem; height:.36rem; border:solid var(--lamp); border-width:0 0 2px 2px; border-radius:0; background:transparent; transform:rotate(-45deg) translateY(-2px); }
+.console .transmission { font:500 .88rem/1.4 var(--mono); color:#ffcc98; min-height:2.6em; }
+.game-records { display:flex; gap:clamp(1rem,4vw,3.5rem); border-block:1px solid #364145; padding:.8rem 0; margin:.3rem 0 1.1rem; }
+.game-records dd { font:700 1.1rem var(--mono); color:#edf1e6; margin-top:.25rem; }
+.control-title + p { font-size:1rem; }
+.console kbd { font:1em var(--mono); color:#eff8ef; }
+.sound { padding:.35rem .8rem; margin-top:.6rem; color:#d7e4dd; background:#192427; border:1px solid #455452; }
+@media(max-width:690px){
+  .arcade { grid-template-columns:minmax(0,1fr); grid-template-rows:auto; grid-template-areas:"heading" "machine" "console"; gap:.85rem; max-width:500px; padding-top:.7rem; }
+  .arcade-heading { padding:0; }
+  .arcade-heading h1 { font-size:clamp(2.4rem,9vw,3.7rem); margin:.22rem 0 0; }
+  .arcade-heading h1 em { display:inline; }
+  .arcade-heading .intro { display:none; }
+  .machine { width:min(100%,max(235px,calc((100svh - 253px) * .6977)),456px); }
+  .console { margin-top:.25rem; }
+  .scoreboard { padding:.35rem .75rem; }
 }

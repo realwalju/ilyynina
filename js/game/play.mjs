@@ -1,118 +1,181 @@
-import { advance, COURSE, move, newRun, score } from './run.mjs';
-import { mountain } from './mountain.mjs';
+import { BALLS, BUMPERS } from './table.mjs';
+import { launch, newGame, pause, STEP, step } from './pinball.mjs';
+import { playfield } from './playfield.mjs';
 
-const game = document.querySelector('#game');
 const byId = id => document.getElementById(id);
-const canvas = byId('slope');
-const draw = mountain(canvas);
-const ui = Object.fromEntries(['action', 'left', 'right', 'score', 'best', 'lives', 'distance',
-  'run-status', 'run-detail', 'progress'].map(id => [id, byId(id)]));
-const recordKey = 'ilyynina.switchback.best.v1';
+const cabinet = byId('game');
+const canvas = byId('playfield');
+const draw = playfield(canvas);
+const controls = [byId('left'),byId('right')];
+const action = byId('action');
+const sound = byId('sound');
+const lamps = [...document.querySelectorAll('[data-lamp]')];
+const ui = Object.fromEntries(['score','ball-number','message','best','raids'].map(id => [id,byId(id)]));
+const recordKey = 'ilyynina.raid-relay.best.v1';
 const number = new Intl.NumberFormat('en-US');
+let game = newGame();
+let best = savedBest();
+let previous = 0, remainder = 0, frame = 0;
+let audio;
+const sources = [new Set(),new Set()];
 
-function readBest() {
+function savedBest() {
   try {
-    const value = Number(localStorage.getItem(recordKey));
-    return Number.isSafeInteger(value) && value > 0 ? value : 0;
+    const n = Number(localStorage.getItem(recordKey));
+    return Number.isSafeInteger(n) && n > 0 ? n : 0;
   } catch { return 0; }
 }
-let best = readBest();
-let run = newRun();
-let frame = 0;
-let previous = 0;
-
-function text(el, value) {
+function saveScore() {
+  best = Math.max(best,savedBest(),game.score);
+  try { localStorage.setItem(recordKey,String(best)); } catch { /* Keep the session record. */ }
+}
+function text(el,value) {
   if (el.textContent !== value) el.textContent = value;
 }
 function paint() {
-  draw(run);
-  text(ui.distance, number.format(Math.floor(run.distance)) + ' m');
-  text(ui.score, number.format(score(run)));
-  text(ui.lives, String(run.lives));
-  text(ui.best, best ? number.format(best) : '—');
-  ui.progress.style.transform = 'scaleX(' + run.distance / COURSE.length + ')';
+  draw(game);
+  text(ui.score,String(game.score).padStart(6,'0'));
+  text(ui['ball-number'],game.number+' / '+BALLS);
+  text(ui.best,best ? number.format(best) : '—');
+  text(ui.raids,String(game.raids));
+  lamps.forEach((lamp,i)=>{
+    const lit = Boolean(game.lit & (1 << i));
+    lamp.classList.toggle('is-lit',lit);
+    lamp.setAttribute('aria-label',BUMPERS[i].label + (lit ? ' lit' : ' unlit'));
+  });
+  controls.forEach((button,i)=>{
+    button.disabled = game.phase !== 'playing';
+    button.classList.toggle('is-held',game.held[i]);
+  });
+  text(action,({ ready:'Launch ball', playing:'Pause', paused:'Resume', serve:'Launch ball', over:'Play again' })[game.phase]);
 }
-function message(title, detail) {
-  text(ui['run-status'], title);
-  text(ui['run-detail'], detail);
+function tone(frequency,duration,volume=.08,delay=0) {
+  if (!audio || audio.state !== 'running' || sound.getAttribute('aria-pressed') !== 'true') return;
+  const at = audio.currentTime+delay;
+  const osc = audio.createOscillator(), gain=audio.createGain();
+  osc.type='triangle';
+  osc.frequency.setValueAtTime(frequency,at);
+  gain.gain.setValueAtTime(.001,at);gain.gain.exponentialRampToValueAtTime(volume,at+.005);
+  gain.gain.exponentialRampToValueAtTime(.001,at+duration);
+  osc.connect(gain); gain.connect(audio.destination);
+  osc.start(at);osc.stop(at+duration+.01);
 }
-function controls() {
-  const riding = run.phase === 'riding';
-  ui.left.disabled = ui.right.disabled = !riding;
-  ui.action.textContent = ({ ready: 'Start run', riding: 'Pause', paused: 'Resume' })[run.phase] || 'Ride again';
+function notify(event) {
+  if (!event) return;
+  text(ui.message,event.text);
+  if(event.kind==='raid') [523,659,784,1047].forEach((f,i)=>tone(f,.18,.09,i*.065));
+  else if(event.kind==='bump') tone(440+game.lit*40,.16);
+  else if(event.kind==='drain' || event.kind==='over') tone(117,.24);
 }
-function finish() {
-  best = Math.max(best, readBest(), score(run));
-  try { localStorage.setItem(recordKey, String(best)); } catch { /* Keep the session record. */ }
-  message(run.phase === 'finished' ? 'Made it to the lodge!' : 'Run over',
-    number.format(score(run)) + ' points · ' + run.crystals + ' crystals collected');
-  controls();
-  ui.action.focus({ preventScroll: true });
+function clearInputs() {
+  sources.forEach(set=>set.clear());
+  game.held.fill(false);
+}
+function doPause() {
+  if (game.phase !== 'playing') return;
+  cancelAnimationFrame(frame);
+  pause(game);
+  clearInputs();
+  text(ui.message,'Paused.');
+  paint();
 }
 function update(now) {
-  // A delayed frame must never jump the rider past an unseen obstacle.
-  const eventBefore = run.lastEvent;
-  advance(run, Math.min((now - previous) / 1000, .08));
-  previous = now;
-  if (run.phase === 'riding') {
-    if (run.lastEvent !== eventBefore) {
-      message(run.lastEvent.kind === 'hit' ? 'Clipped a pine!' : 'Crystal collected!',
-        run.lastEvent.kind === 'hit' ? run.lives + (run.lives === 1 ? ' life left.' : ' lives left.') : '+' + COURSE.crystalPoints + ' points');
-    }
-    frame = requestAnimationFrame(update);
-  } else finish();
+  remainder += Math.min(.075,Math.max(0,(now-previous)/1000));
+  previous=now;
+  while (remainder>=STEP && game.phase==='playing') {
+    const last=game.event;
+    step(game);
+    if(last!==game.event) notify(game.event);
+    remainder-=STEP;
+  }
+  if(game.phase==='playing') frame=requestAnimationFrame(update);
+  else {
+    clearInputs();
+    saveScore();
+    action.focus({preventScroll:true});
+  }
   paint();
-}
-function pause() {
-  if (run.phase !== 'riding') return;
-  cancelAnimationFrame(frame);
-  run.phase = 'paused';
-  controls();
-  message('Paused', 'Your place on the slope is saved for this run.');
 }
 function activate() {
-  if (run.phase === 'riding') return pause();
-  if (run.phase === 'crashed' || run.phase === 'finished') run = newRun();
-  run.phase = 'riding';
-  controls();
-  message('On the slope', 'Collect crystals and steer around the pines.');
-  canvas.focus({ preventScroll: true });
-  previous = performance.now();
-  frame = requestAnimationFrame(update);
+  if(game.phase==='playing') return doPause();
+  if(game.phase==='over') game=newGame();
+  if(game.phase==='paused') {
+    game.phase='playing';text(ui.message,'Back in play.');
+  } else {
+    launch(game);notify(game.event);tone(165,.1);
+  }
+  canvas.focus({preventScroll:true});
+  previous=performance.now();remainder=0;
+  frame=requestAnimationFrame(update);
   paint();
 }
-function steer(direction) {
-  move(run, direction);
-  paint();
+function hold(side,source) {
+  if(game.phase!=='playing') return;
+  if(!game.held[side]) tone(side===0?133:151,.045,.055);
+  sources[side].add(source);game.held[side]=true;
 }
-
+function liftSource(source) {
+  sources.forEach((set,i)=>{set.delete(source);game.held[i]=set.size>0;});
+}
 if (draw) {
-  ui.action.disabled = false;
-  ui.action.addEventListener('click', activate);
-  ui.left.addEventListener('click', () => steer(-1));
-  ui.right.addEventListener('click', () => steer(1));
-  game.addEventListener('keydown', event => {
-    if (event.ctrlKey || event.metaKey || event.altKey) return;
-    const key = event.key.toLowerCase();
-    if (key === 'p' && ['paused', 'riding'].includes(run.phase)) {
+  action.disabled=false;
+  action.addEventListener('click',activate);
+  for(const target of [canvas,...controls]) {
+    target.addEventListener('pointerdown',event=>{
+      if(event.button!==0 || game.phase!=='playing') return;
       event.preventDefault();
-      if (!event.repeat) activate();
-    } else if (run.phase === 'riding' && ['a', 'd', 'arrowleft', 'arrowright'].includes(key)) {
+      const box=canvas.getBoundingClientRect();
+      const side=target===canvas ? Number(event.clientX>=box.left+box.width/2) : controls.indexOf(target);
+      target.setPointerCapture(event.pointerId);
+      canvas.focus({preventScroll:true});
+      hold(side,event.pointerId);
+    });
+    for(const name of ['pointerup','pointercancel','lostpointercapture']) {
+      target.addEventListener(name,event=>liftSource(event.pointerId));
+    }
+    target.addEventListener('contextmenu',event=>event.preventDefault());
+  }
+  controls.forEach((button,side)=>{
+    // Assistive activation can produce a click without a pointer sequence.
+    button.addEventListener('click',event=>{
+      if(event.detail!==0) return;
+      const source=Symbol('flipper');
+      hold(side,source);setTimeout(()=>liftSource(source),90);
+    });
+  });
+  cabinet.addEventListener('keydown',event=>{
+    if(event.altKey || event.ctrlKey || event.metaKey) return;
+    const side=['ArrowLeft','ArrowRight'].indexOf(event.code);
+    if(side>=0) {
       event.preventDefault();
-      if (!event.repeat) steer(key === 'a' || key === 'arrowleft' ? -1 : 1);
+      if(!event.repeat) hold(side,event.code);
+    } else if(event.code==='KeyP' && ['playing','paused'].includes(game.phase)) {
+      event.preventDefault();if(!event.repeat) activate();
+    } else if(event.code==='Space' && event.target===canvas && game.phase!=='playing') {
+      event.preventDefault();if(!event.repeat) activate();
     }
   });
-  game.addEventListener('focusout', event => {
-    if (event.relatedTarget && !game.contains(event.relatedTarget)) pause();
+  window.addEventListener('keyup',e=>liftSource(e.code));
+  cabinet.addEventListener('focusout',e=>{
+    if(e.relatedTarget && !cabinet.contains(e.relatedTarget)) doPause();
   });
-  window.addEventListener('blur', pause);
-  window.addEventListener('pagehide', pause);
-  document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
-  window.addEventListener('resize', paint);
-  window.addEventListener('storage', event => {
-    if (event.key === recordKey || event.key === null) { best = readBest(); paint(); }
+  sound.addEventListener('click',async()=>{
+    const enabled=sound.getAttribute('aria-pressed')!=='true';
+    try {
+      if(enabled) { audio ||= new AudioContext(); await audio.resume(); }
+      sound.setAttribute('aria-pressed',String(enabled));
+      text(sound,enabled?'Sound on':'Sound off');
+      if(enabled) tone(523,.10);
+    } catch { text(sound,'Sound unavailable');sound.disabled=true; }
+    if(game.phase==='playing') canvas.focus({preventScroll:true});
   });
+  window.addEventListener('blur',doPause);
+  window.addEventListener('pagehide',()=>{doPause();if(game.score)saveScore();});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)doPause();});
+  window.addEventListener('resize',paint);
+  window.addEventListener('storage',e=>{if(e.key===recordKey || e.key===null){best=savedBest();paint();}});
   paint();
 } else {
-  message('Game graphics unavailable', 'Open this page in a browser with Canvas support to ride.');
+  text(ui.message,'Open this page in a browser with Canvas support to play.');
+  sound.disabled=true;
 }

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Patch Bay | Nina's arcade</title>
+  <meta name="description" content="Rotate cable sockets to reconnect the studio signal in a three-panel routing puzzle.">
+  <meta name="theme-color" content="#101819">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@500;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/patch-bay.css">
+</head>
+<body data-page="play">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header" data-header></header>
+  <main id="main" class="studio wrap">
+    <header class="studio-intro">
+      <p class="kicker">Nina’s arcade / Signal puzzle</p>
+      <h1>Patch <em>Bay</em></h1>
+      <p>Turn the sockets to carry the signal from <strong>IN</strong> to <strong>AIR</strong>. Connected cables light up as you work.</p>
+      <a href="play.html">Play Raid Relay</a>
+    </header>
+    <section class="rack" aria-labelledby="panel-name">
+      <header class="rack-head">
+        <div><span id="panel-number">Panel 1 of 3</span><h2 id="panel-name">Camera feed</h2></div>
+        <div class="meter"><span>Turns</span><strong id="moves">0</strong></div>
+      </header>
+      <div id="sockets" class="sockets" role="group" aria-label="Rotating cable sockets" aria-describedby="instructions"></div>
+      <footer class="rack-foot">
+        <p id="signal" role="status">Signal open</p>
+        <button id="reset" type="button">Reset panel</button>
+        <button id="next" class="next" type="button" hidden>Next panel</button>
+      </footer>
+    </section>
+    <p id="instructions">Tap a socket to turn it clockwise. On a keyboard, use the arrow keys to move between sockets and Space to rotate.</p>
+    <noscript>Enable JavaScript to connect the panel.</noscript>
+  </main>
+  <footer class="site-footer" data-footer></footer>
+  <script src="js/config.js"></script>
+  <script src="js/site.js"></script>
+  <script type="module" src="js/game/patch-controls.mjs"></script>
+</body>
+</html>

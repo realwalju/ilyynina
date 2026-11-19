@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Switchback | Nina's arcade</title>
-  <meta name="description" content="Ride a pixel-art Colorado slope. Dodge the pines, collect mint crystals and beat your best run.">
+  <title>Raid Relay | Nina's arcade</title>
+  <meta name="description" content="Play Raid Relay, Nina's broadcast pinball table. Light the chat bumpers, shoot the uplink and send a raid.">
   <meta name="theme-color" content="#0a0b0c">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -15,48 +15,52 @@
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@500;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/arcade.css">
+  <link rel="preload" as="image" href="assets/game/raid-relay.webp">
 </head>
 <body data-page="play">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header" data-header></header>
   <main id="main" class="arcade wrap">
     <header class="arcade-heading">
-      <div><span class="kicker">Nina's arcade</span><h1>Switchback</h1></div>
-      <p>A Colorado downhill run. Pick a line through the pines and pocket every mint crystal you can.</p>
+      <p class="kicker">Nina’s arcade / Pinball</p>
+      <h1>Raid <em>Relay</em></h1>
+      <p class="intro">Three balls per game. Every bumper hit earns 100 points.</p>
+      <a class="next-game" href="patch-bay.html">Play Patch Bay</a>
     </header>
-    <section class="cabinet" aria-label="Switchback game" id="game">
-      <div class="instrument-panel">
-        <dl><div><dt>Distance</dt><dd id="distance">0 m</dd></div>
-          <div><dt>Score</dt><dd id="score">0</dd></div>
-          <div><dt>Lives</dt><dd id="lives">3</dd></div></dl>
-        <div class="record"><span>Personal best</span><strong id="best">—</strong></div>
+    <section class="machine" id="game" aria-label="Raid Relay pinball table">
+      <div class="scoreboard">
+        <div><span>Score</span><strong id="score">000000</strong></div>
+        <div><span>Ball</span><strong id="ball-number">1 / 3</strong></div>
       </div>
-      <canvas id="slope" tabindex="0" aria-label="Snowboard course" aria-describedby="controls"></canvas>
-      <div class="course-progress" aria-hidden="true"><i id="progress"></i></div>
-      <div class="game-console">
-        <div class="game-message"><p id="run-status" role="status">At the summit</p><p id="run-detail">Reach the lodge at 1,000 m.</p></div>
-        <div class="game-actions">
-          <div class="steering" aria-label="Steering" role="group">
-            <button type="button" id="left" aria-label="Move one lane left" disabled>◀</button>
-            <button type="button" id="right" aria-label="Move one lane right" disabled>▶</button>
-          </div>
-          <button type="button" id="action" class="btn btn-primary" disabled>Start run</button>
-        </div>
+      <canvas id="playfield" width="420" height="602" tabindex="0" aria-label="Pinball table. Use the left and right arrow keys or tap either side to flip." aria-describedby="controls"></canvas>
+      <div class="machine-controls">
+        <button class="flip" id="left" type="button" aria-label="Left flipper" disabled>L flip</button>
+        <button id="action" type="button" disabled>Launch ball</button>
+        <button class="flip" id="right" type="button" aria-label="Right flipper" disabled>R flip</button>
       </div>
     </section>
-    <noscript><p>Enable JavaScript to play Switchback.</p></noscript>
-    <div class="trail-guide" id="controls">
-      <p><strong>Steer</strong> Use <kbd>←</kbd> <kbd>→</kbd>, A and D, or the lane buttons. Press P to pause.</p>
-      <p><strong>Score</strong> Earn a point per metre and 100 per crystal. Each pine costs one life.</p>
-    </div>
+    <section class="console" aria-label="Raid mission and controls">
+      <h2>Send a raid</h2>
+      <p>Light all three chat bumpers. Then shoot up through the <strong>UPLINK</strong> gate for a 2,000-point jackpot.</p>
+      <ul class="lamp-bank" aria-label="Chat bumpers">
+        <li data-lamp="0">HI</li><li data-lamp="1">GG</li><li data-lamp="2">W</li>
+      </ul>
+      <p class="transmission" id="message" role="status">Ready to launch.</p>
+      <dl class="game-records">
+        <div><dt>Raids sent</dt><dd id="raids">0</dd></div>
+        <div><dt>Personal best</dt><dd id="best">—</dd></div>
+      </dl>
+      <h2 class="control-title">At the controls</h2>
+      <p id="controls">Tap the left or right half of the table, or use <kbd>←</kbd> and <kbd>→</kbd>. Hold a flipper up to catch the ball. Press <kbd>P</kbd> to pause.</p>
+      <button id="sound" class="sound" type="button" aria-pressed="false">Sound off</button>
+      <noscript><p>Enable JavaScript to play Raid Relay.</p></noscript>
+    </section>
   </main>
   <footer class="site-footer" data-footer></footer>
   <script src="js/config.js"></script>
   <script src="js/site.js"></script>
   <script type="module" src="js/game/play.mjs"></script>
-  <script>
-    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-  </script>
+  <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
