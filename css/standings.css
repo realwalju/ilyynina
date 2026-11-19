@@ -1,0 +1,11 @@
+.standings { grid-column: 1/-1; background: #172522; border: 1px solid #465b50; border-radius: 12px; padding: clamp(1rem,3vw,2rem); }
+.standings h2 { font: 400 clamp(1.8rem,4vw,2.6rem) var(--display); }
+.standings p { margin: .5rem 0; max-width: 72ch; color: #d1ded6; }
+.standings p:empty { display:none; }
+.rank-actions { display:flex; gap:.6rem; flex-wrap:wrap; margin:.9rem 0; }
+.standings button,.standings select,.rank-actions a { font:700 .94rem var(--body); color:#ddf3e7; background:#263c32; border:1px solid #6b8674; border-radius:6px; padding:.6rem .8rem; }
+.rank-actions a { color:#e6d9ff; background:#392e4c; }
+.standings label { display:block; margin-block:1rem; }
+#rank-rows { list-style:none; padding:0; }
+#rank-rows li { display:grid; grid-template-columns:3rem 1fr auto; gap:.5rem; padding:.65rem 0; border-top:1px solid #43564b; font-variant-numeric:tabular-nums; }
+#rank-rows a { overflow-wrap:anywhere; }

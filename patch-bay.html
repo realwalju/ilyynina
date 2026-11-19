@@ -11,34 +11,44 @@
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@500;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/patch-bay.css">
+  <link rel="stylesheet" href="css/standings.css">
 </head>
 <body data-page="play">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header" data-header></header>
   <main id="main" class="studio wrap">
     <header class="studio-intro">
-      <p class="kicker">Nina’s arcade / Signal puzzle</p>
+      <p class="kicker">Nina’s arcade</p>
       <h1>Patch <em>Bay</em></h1>
-      <p>Turn the sockets to carry the signal from <strong>IN</strong> to <strong>AIR</strong>. Connected cables light up as you work.</p>
-      <p id="mode" class="run-mode">Practice circuit</p>
+      <p class="mission-brief">Get the studio pup on air. Connect the camera, mic and transmitter in as few turns as you can.</p>
+      <figure id="studio-monitor" data-systems="0">
+        <canvas id="studio-screen" width="160" height="90"></canvas>
+        <figcaption><span id="monitor-state">Standby</span><button id="studio-sound" type="button" aria-pressed="false">Sound off</button></figcaption>
+      </figure>
+      <div class="system-track" id="mission-progress" role="group" aria-label="0 of 3 systems online">
+        <span>Camera</span><span>Mic</span><span>On air</span>
+      </div>
       <p id="practice-best" hidden></p>
-      <a href="#leaderboard">Daily challenge &amp; leaderboard</a> · <a href="play.html">Play Raid Relay</a>
     </header>
     <section id="game-rack" class="rack" aria-labelledby="panel-name">
       <header class="rack-head">
-        <div><span id="panel-number">Panel 1 of 3</span><h2 id="panel-name">Camera feed</h2></div>
+        <div><span id="mode" class="run-mode">Practice circuit</span><span id="panel-number">Panel 1 of 3</span><h2 id="panel-name">Camera feed</h2></div>
         <div class="meter"><span>Points</span><strong id="points">0</strong></div>
         <div class="meter"><span>Turns</span><strong id="moves">0</strong></div>
       </header>
+      <p id="instructions">Tap or click a tile to turn it clockwise. Join the cable from <strong>IN</strong> to <strong>OUT</strong>.</p>
       <div id="sockets" class="sockets" role="group" aria-label="Rotating cable sockets" aria-describedby="instructions"></div>
+      <p id="coach" role="status"></p>
       <footer class="rack-foot">
         <p id="signal" role="status">Signal open</p>
-        <button id="reset" type="button">Reset panel</button>
+        <button id="guide-toggle" type="button" aria-pressed="true">Hide guide</button>
+        <button id="reset" type="button">Reset (+1 turn)</button>
         <button id="next" class="next" type="button" hidden>Next panel</button>
       </footer>
+      <details class="key-help"><summary>Keyboard controls</summary>Tab to the grid. Use the arrow keys to pick a tile, then Enter or Space to rotate it.</details>
     </section>
     <section id="results" class="rack results" aria-labelledby="results-title" hidden>
-      <h2 id="results-title" tabindex="-1">Circuit complete</h2>
+      <h2 id="results-title" tabindex="-1">You’re on air!</h2>
       <p class="result-total"><strong id="result-total"></strong> points</p>
       <table aria-label="Panel results"><thead><tr><th scope="col">Panel</th><th scope="col">Turns</th><th scope="col">Points</th></tr></thead><tbody id="panel-results"></tbody></table>
       <p id="result-personal"></p>
@@ -49,16 +59,16 @@
         <a href="#leaderboard">View standings</a>
       </div>
     </section>
-    <p id="instructions">Tap a socket to turn it clockwise. On a keyboard, use the arrow keys to move between sockets and Space to rotate.</p>
     <section id="leaderboard" class="standings" aria-labelledby="standings-title">
-      <h2 id="standings-title" tabindex="-1">Patch Bay leaderboard</h2>
-      <p>Finish three panels to post a score. They earn 200, 400 and 600 points, plus up to 500 each for efficiency. Each turn or reset spends 10 bonus points.</p>
-      <p>Everyone plays the same daily circuit until midnight UTC. Your all-time score adds up your best score from each day.</p>
+      <h2 id="standings-title" tabindex="-1">Daily challenge</h2>
+      <p>Three panels, one circuit for everyone. Try it as a guest or sign in with Twitch to earn a place on the leaderboard.</p>
       <div class="rank-actions">
+        <button id="daily-practice" type="button">Try today’s circuit</button>
         <a id="signin" href="/api/arcade?action=login" hidden>Sign in with Twitch</a>
         <button id="rank-start" type="button" hidden>Start daily circuit</button>
         <button id="signout" type="button" hidden>Sign out</button>
       </div>
+      <details><summary>How scoring works</summary><p>Panels earn 200, 400 and 600 points, plus up to 500 each for efficiency. Every turn or reset spends 10 bonus points. The circuit changes at midnight UTC. Your best score each day counts toward your all-time total.</p></details>
       <p id="account" role="status"></p>
       <div id="board-feedback"><div id="score-feedback">
         <div role="status"><p id="submission"></p><p id="rank-target"></p></div>
@@ -70,6 +80,7 @@
       <p id="my-rank"></p>
       <button id="refresh-board" type="button">Refresh standings</button>
     </section>
+    <nav class="arcade-links" aria-label="More arcade games"><a href="play.html">Choose another game</a></nav>
     <noscript>Enable JavaScript to connect the panel.</noscript>
   </main>
   <footer class="site-footer" data-footer></footer>

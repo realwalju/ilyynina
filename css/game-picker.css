@@ -1,0 +1,22 @@
+.picker { max-width:1060px; padding-block:clamp(2rem,5vw,4.5rem); }
+.picker h1 { margin:.25rem 0 clamp(1.2rem,3vw,2rem); font:400 clamp(3rem,7vw,6.3rem)/1 var(--display); text-transform:uppercase; }
+.picker h1 em { color:var(--mint); }
+.game-choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(1.2rem,3vw,1.8rem); }
+.game-choice { display:flex; flex-direction:column; min-width:0; overflow:hidden; border:1px solid var(--line-strong); border-radius:24px; background:var(--panel); color:var(--text); text-decoration:none; }
+.game-choice > img { display:block; width:100%; height:auto; aspect-ratio:7 / 4; object-fit:cover; }
+.pinball-choice > img { object-position:50% 36%; }
+.patch-choice > img { image-rendering:pixelated; }
+.choice-copy { flex:1; display:flex; flex-direction:column; align-items:start; padding:clamp(1.25rem,3vw,1.75rem); }
+.choice-copy h2 { font:400 clamp(1.9rem,4vw,3.1rem)/1.05 var(--display); text-transform:uppercase; }
+.choice-copy p { color:var(--text-muted); line-height:1.6; margin:.65rem 0 1.25rem; }
+.choice-copy span { margin-top:auto; padding:.45rem .85rem; border-radius:6px; background:var(--mint); color:#13251f; font-weight:800; }
+.pinball-choice .choice-copy span { background:#ffce86; }
+.game-choice:hover,.game-choice:focus-visible { border-color:var(--mint); }
+@media (prefers-reduced-motion:no-preference) and (hover:hover) {
+  .game-choice { transition:transform .18s; }
+  .game-choice:hover { transform:translateY(-4px); }
+}
+@media (max-width:680px) {
+  .game-choices { grid-template-columns:1fr; }
+  .game-choice > img { aspect-ratio:7 / 3.8; }
+}

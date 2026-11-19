@@ -1,6 +1,8 @@
 import { BALLS, BUMPERS } from './table.mjs';
 import { launch, newGame, pause, STEP, step } from './pinball.mjs';
 import { playfield } from './playfield.mjs';
+import { createRaidRecorder } from './raid-score.mjs';
+import { raidLeaderboard } from './raid-ranks.mjs';
 
 const byId = id => document.getElementById(id);
 const cabinet = byId('game');
@@ -9,6 +11,7 @@ const draw = playfield(canvas);
 const controls = [byId('left'),byId('right')];
 const action = byId('action');
 const sound = byId('sound');
+const mode = byId('play-mode');
 const lamps = [...document.querySelectorAll('[data-lamp]')];
 const ui = Object.fromEntries(['score','ball-number','message','best','raids'].map(id => [id,byId(id)]));
 const recordKey = 'ilyynina.raid-relay.best.v1';
@@ -17,7 +20,9 @@ let game = newGame();
 let best = savedBest();
 let previous = 0, remainder = 0, frame = 0;
 let audio;
+let ranked = null;
 const sources = [new Set(),new Set()];
+const ranks = raidLeaderboard(startRanked);
 
 function savedBest() {
   try {
@@ -34,6 +39,7 @@ function text(el,value) {
 }
 function paint() {
   draw(game);
+  text(mode, ranked ? 'Ranked · ' + ranked.run.day : 'Practice');
   text(ui.score,String(game.score).padStart(6,'0'));
   text(ui['ball-number'],game.number+' / '+BALLS);
   text(ui.best,best ? number.format(best) : '—');
@@ -47,7 +53,7 @@ function paint() {
     button.disabled = game.phase !== 'playing';
     button.classList.toggle('is-held',game.held[i]);
   });
-  text(action,({ ready:'Launch ball', playing:'Pause', paused:'Resume', serve:'Launch ball', over:'Play again' })[game.phase]);
+  text(action,({ ready:'Launch ball', playing:'Pause', paused:'Resume', serve:'Launch ball', over:ranked ? 'Play practice' : 'Play again' })[game.phase]);
 }
 function tone(frequency,duration,volume=.08,delay=0) {
   if (!audio || audio.state !== 'running' || sound.getAttribute('aria-pressed') !== 'true') return;
@@ -71,6 +77,17 @@ function clearInputs() {
   sources.forEach(set=>set.clear());
   game.held.fill(false);
 }
+function startRanked(run) {
+  if (!draw) throw new Error('Canvas unavailable');
+  cancelAnimationFrame(frame);
+  if (game.score) saveScore();
+  clearInputs();
+  game = newGame();
+  ranked = {run, recorder:createRaidRecorder()};
+  text(ui.message, 'Ranked game ready. Launch your first ball.');
+  paint();
+  action.focus();
+}
 function doPause() {
   if (game.phase !== 'playing') return;
   cancelAnimationFrame(frame);
@@ -84,6 +101,10 @@ function update(now) {
   previous=now;
   while (remainder>=STEP && game.phase==='playing') {
     const last=game.event;
+    if (ranked && !ranked.recorder.record(game.held)) {
+      ranked = null;
+      ranks.abandon('This run reached the ranked replay limit. You can finish in practice.');
+    }
     step(game);
     if(last!==game.event) notify(game.event);
     remainder-=STEP;
@@ -92,13 +113,17 @@ function update(now) {
   else {
     clearInputs();
     saveScore();
+    if (ranked && game.phase === 'over') ranks.finish(ranked.run, ranked.recorder.history);
     action.focus({preventScroll:true});
   }
   paint();
 }
 function activate() {
   if(game.phase==='playing') return doPause();
-  if(game.phase==='over') game=newGame();
+  if(game.phase==='over') {
+    game=newGame();
+    ranked=null;
+  }
   if(game.phase==='paused') {
     game.phase='playing';text(ui.message,'Back in play.');
   } else {

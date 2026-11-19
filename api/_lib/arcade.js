@@ -38,7 +38,29 @@ function setCookie(res, name, value, age) {
   const flags = '; Path=/; HttpOnly; SameSite=Lax; Max-Age='+age+(origin().startsWith('https:') ? '; Secure' : '');
   res.setHeader('Set-Cookie', [].concat(res.getHeader('Set-Cookie') || [], name+'='+value+flags));
 }
-const session = req => verify('nina-session',cookie(req,'nina_session'));
+const sessionSeconds = 30 * 86400;
+function sessionKey(token) {
+  // The database holds only a digest of the bearer token. This format also
+  // rejects retired stateless cookies before contacting the database.
+  if (!token || !/^[0-9a-f]{64}$/.test(token)) return null;
+  return 'ilyynina:session:' + crypto.createHash('sha256').update(token).digest('hex');
+}
+async function createSession(res, user) {
+  const token = crypto.randomBytes(32).toString('hex');
+  await redis(['SET', sessionKey(token), JSON.stringify(user), 'EX', sessionSeconds]);
+  setCookie(res, 'nina_session', token, sessionSeconds);
+}
+async function session(req) {
+  const key = sessionKey(cookie(req, 'nina_session'));
+  if (!key) return null;
+  const profile = await redis(['GET', key]);
+  return profile ? JSON.parse(profile) : null;
+}
+async function logout(req, res) {
+  const key = sessionKey(cookie(req, 'nina_session'));
+  if (key) await redis(['DEL', key]);
+  setCookie(res, 'nina_session', '', 0);
+}
 const today = () => new Date().toISOString().slice(0,10);
 function json(res, status, data) {
   res.statusCode = status;
@@ -63,13 +85,17 @@ function credentials() {
   return {id,password};
 }
 function loginAvailable() {
-  try { credentials(); origin(); secret(); return true; }
+  try { credentials(); origin(); secret(); redisCredentials(); return true; }
   catch { return false; }
 }
-async function redis(command) {
+function redisCredentials() {
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) throw new HttpError(503,'not_configured');
+  return {url,token};
+}
+async function redis(command) {
+  const {url,token} = redisCredentials();
   const response = await fetch(url, {method:'POST', headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
     body:JSON.stringify(command), signal:AbortSignal.timeout(7000)});
   if (!response.ok) throw new HttpError(503,'storage_unavailable');
@@ -77,4 +103,4 @@ async function redis(command) {
   if (data.error) throw new HttpError(503,'storage_unavailable');
   return data.result;
 }
-module.exports = {HttpError,origin,signed,verify,cookie,setCookie,session,today,json,redirect,handler,credentials,loginAvailable,redis};
+module.exports = {HttpError,origin,signed,verify,cookie,setCookie,createSession,session,logout,today,json,redirect,handler,credentials,loginAvailable,redis};

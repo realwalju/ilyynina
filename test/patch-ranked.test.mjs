@@ -39,6 +39,35 @@ test('daily circuits are stable, start disconnected and award efficiency per pan
   }
 });
 
+test('the library serves 60 distinct solvable combinations with a connected camera input', () => {
+  const sets = new Set(), byTier = [new Set(), new Set(), new Set()];
+  for (let dayIndex = 0; dayIndex < 60; dayIndex++) {
+    const day = new Date(Date.UTC(2026, 10, 1 + dayIndex)).toISOString().slice(0, 10);
+    const panels = dailyPanels(day, 2);
+    sets.add(panels.map(p => p.name).join('/'));
+    panels.forEach((p, i) => {
+      byTier[i].add(p.name);
+      assert.equal(p.difficulty, ['Easy', 'Medium', 'Hard'][i]);
+      assert.equal(new Set(p.route).size, p.route.length);
+      const start = trace(p, wiring(p));
+      assert.equal(start.live, false);
+      if (i === 0) assert.ok(start.powered.size >= 2);
+      assert.deepEqual([...trace(p, wiring(p, false)).powered], p.route);
+    });
+    assert.ok(replayScore(day, panels.map(solution), 2) > 0);
+  }
+  assert.equal(sets.size, 60);
+  assert.deepEqual(byTier.map(tier => tier.size), [3, 4, 5]);
+});
+
+test('the original circuit format preserves its published layout and rejects unknown versions', () => {
+  const day = '2026-11-19';
+  const old = dailyPanels(day, 1);
+  assert.deepEqual(old.map(p => p.turns.join('')), ['102221331', '102100112210', '2210120000230130']);
+  assert.ok(replayScore(day, old.map(solution), 1) > 0);
+  assert.equal(replayScore(day, old.map(solution), 99), null);
+});
+
 const site = 'https://nina.example';
 test('rank targets use the last run, respect exhausted bonuses and handle first place', () => {
   const result = {score: 2000, best: 2020, nextPlace: {rank: 11, score: 2030}};
@@ -68,6 +97,8 @@ test('Twitch identity binds a verified circuit to the player who started it', as
     Object.assign(process.env, previous);
   });
   const updates = [];
+  const sessions = new Map();
+  let sessionStoreAvailable = true;
   let revoked = false;
   t.mock.method(globalThis, 'fetch', async (url, options) => {
     switch (url) {
@@ -82,7 +113,18 @@ test('Twitch identity binds a verified circuit to the player who started it', as
         return Response.json({});
       case 'https://redis.example': {
         const command = JSON.parse(options.body);
-        if (command[2] === 2) return Response.json({result: [[], '0', 0]});
+        if (command[0] === 'SET') {
+          assert.deepEqual(command.slice(3), ['EX', 30 * 86400]);
+          sessions.set(command[1], command[2]);
+          return Response.json({result: 'OK'});
+        }
+        if (command[0] === 'GET') return Response.json({result: sessions.get(command[1]) ?? null});
+        if (command[0] === 'DEL') {
+          if (!sessionStoreAvailable) return Response.json({}, {status: 503});
+          return Response.json({result: Number(sessions.delete(command[1]))});
+        }
+        if (command[2] === 2) return Response.json({result: 2});
+        if (command[2] === 4) return Response.json({result: [[], '0', 0, 2]});
         updates.push(command.slice(6));
         return Response.json({result: [command[7], command[7], 4, command[7] + 20, 2]});
       }
@@ -94,6 +136,7 @@ test('Twitch identity binds a verified circuit to the player who started it', as
   assert.deepEqual(anonymous.data.rows, []);
   assert.equal(anonymous.data.user, null);
   assert.equal(anonymous.data.loginAvailable, true);
+  assert.equal(anonymous.data.circuitVersion, 2);
   const login = await invoke(arcade, 'login');
   const authorize = new URL(login.headers.Location);
   assert.equal(authorize.origin, 'https://id.twitch.tv');
@@ -108,10 +151,17 @@ test('Twitch identity binds a verified circuit to the player who started it', as
   assert.match(sessionHeader, /Secure/);
   assert.equal(revoked, true);
   const state = {method: 'POST', cookie: sessionHeader.split(';')[0]};
+  assert.equal(sessions.size, 1);
+  assert.ok(![...sessions.keys()][0].includes(state.cookie.slice('nina_session='.length)));
+  const legacy = auth.signed('nina-session', {id: '42', login: 'viewer', name: 'Viewer'}, 300000);
+  assert.equal((await invoke(arcade, 'board', {cookie: 'nina_session=' + legacy})).data.user, null);
   assert.equal((await invoke(arcade, 'start', {method: 'POST'})).status, 401);
   assert.equal((await invoke(arcade, 'start', {...state, origin: 'https://another.example'})).status, 403);
-  const {ticket, day, player} = (await invoke(arcade, 'start', state)).data;
+  assert.equal((await invoke(arcade, 'start', state)).status, 409);
+  const {ticket, day, player, version} = (await invoke(arcade, 'start', {...state, body: {maxVersion:2}})).data;
   assert.equal(player, '42');
+  assert.equal(version, 2);
+  assert.deepEqual(auth.verify('patch-v1', ticket), {day, player, version});
   const history = dailyPanels(day).map(solution);
   const finish = body => invoke(arcade, 'finish', {...state, body});
   assert.equal((await finish({ticket, score: 30000})).status, 400);
@@ -123,5 +173,19 @@ test('Twitch identity binds a verified circuit to the player who started it', as
   assert.equal(result.data.rank, 4);
   assert.deepEqual(result.data.nextPlace, {rank: 2, score: result.data.score + 20});
   assert.deepEqual(updates, [['42', result.data.score, JSON.stringify({login: 'viewer', name: 'Viewer'})]]);
+  const oldHistory = dailyPanels(day, 1).map(solution);
+  const oldTicket = auth.signed('patch-v1', {day, player}, 5000);
+  const oldFinish = await finish({ticket:oldTicket, history:oldHistory});
+  assert.equal(oldFinish.data.score, replayScore(day, oldHistory, 1));
+  sessionStoreAvailable = false;
+  const unavailableLogout = await invoke(arcade, 'logout', state);
+  assert.equal(unavailableLogout.status, 503);
+  assert.equal(unavailableLogout.headers['Set-Cookie'], undefined);
+  sessionStoreAvailable = true;
   assert.match((await invoke(arcade, 'logout', state)).headers['Set-Cookie'][0], /Max-Age=0/);
+  assert.equal(sessions.size, 0);
+  assert.equal((await invoke(arcade, 'start', state)).status, 401);
+  assert.equal((await finish({ticket, history})).status, 401);
+  assert.equal((await invoke(arcade, 'board', {cookie: state.cookie})).data.user, null);
+  assert.equal((await invoke(arcade, 'logout', state)).status, 200);
 });

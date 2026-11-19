@@ -61,7 +61,10 @@ function flip(game, index, dt) {
   const rate = target ? 16 : 9;
   const lift = game.lift[index] = old + Math.sign(target-old)*Math.min(Math.abs(target-old),dt*rate);
   const pivot = FLIPPERS[index], tip = flipperTip(index, lift);
-  const dx = tip.x-pivot.x, dy = tip.y-pivot.y, ball = game.ball;
+  // Trigonometric functions can differ in their last bits across JS engines.
+  // Snap collision offsets to a millionth of a table unit for ranked replays.
+  const dx = Math.round((tip.x-pivot.x)*1e6)/1e6, dy = Math.round((tip.y-pivot.y)*1e6)/1e6;
+  const ball = game.ball;
   const t = Math.max(0,Math.min(1,((ball.x-pivot.x)*dx+(ball.y-pivot.y)*dy)/(dx*dx+dy*dy)));
   const omega = -pivot.direction*1.06*(lift-old)/dt;
   contact(ball,pivot.x+t*dx,pivot.y+t*dy,FLIP_RADIUS,.72,0,-omega*t*dy,omega*t*dx);
@@ -132,7 +135,7 @@ export function step(game) {
     game.lit = 0;
     notify(game,'raid','Raid sent!  +2,000');
   }
-  const speed = Math.hypot(b.vx,b.vy);
+  const speed = Math.sqrt(b.vx*b.vx + b.vy*b.vy);
   if (speed > MAX_SPEED) { b.vx *= MAX_SPEED/speed; b.vy *= MAX_SPEED/speed; }
   if (b.y > HEIGHT+BALL_RADIUS) drain(game);
 }

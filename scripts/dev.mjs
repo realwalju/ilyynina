@@ -10,7 +10,7 @@ process.env.ARCADE_ORIGIN ||= 'http://localhost:' + port;
 const types = {'.html':'text/html', '.css':'text/css', '.js':'text/javascript', '.mjs':'text/javascript',
   '.svg':'image/svg+xml', '.ico':'image/x-icon', '.png':'image/png', '.jpg':'image/jpeg',
   '.webp':'image/webp', '.avif':'image/avif', '.woff2':'font/woff2'};
-const pages = new Set(['index', 'about', 'emotes', 'patch-bay', 'play', 'setup', 'watch']);
+const pages = new Set(['index', 'about', 'emotes', 'patch-bay', 'play', 'raid-relay', 'setup', 'watch']);
 
 createServer(async (req, res) => {
   try {
@@ -42,4 +42,4 @@ createServer(async (req, res) => {
     const data = await readFile(new URL(file, root));
     res.writeHead(200, {'Content-Type': types[extname(file)] || 'application/octet-stream'}).end(data);
   } catch { res.writeHead(404).end(); }
-}).listen(port, '127.0.0.1', () => console.log('Patch Bay at http://localhost:' + port + '/patch-bay.html'));
+}).listen(port, '127.0.0.1', () => console.log('Nina’s arcade at http://localhost:' + port + '/play'));

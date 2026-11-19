@@ -21,6 +21,10 @@ body[data-page="play"] {
 .scoreboard>div { display:flex; align-items:baseline; gap:.65rem; }
 .scoreboard span,.game-records dt { font:.82rem var(--mono); color:#ccd8d3; }
 .scoreboard strong { color:#9ff8ca; font:700 clamp(1rem,2vw,1.35rem) var(--mono); font-variant-numeric:tabular-nums; }
+.table-mode { display:flex; justify-content:space-between; gap:.5rem; padding:.25rem .75rem; color:#dfd2ff; background:#242032; font:600 .82rem var(--mono); }
+.table-mode a { color:inherit; text-underline-offset:.18em; }
+.arcade .standings { min-width:0; }
+.arcade .standings h2 { color:#e1d3ff; }
 #playfield { display:block; width:100%; height:auto; aspect-ratio:420/602; background:#162931; touch-action:none; user-select:none; -webkit-user-select:none; cursor:crosshair; }
 #playfield:focus-visible { outline-offset:-3px; }
 .machine-controls { display:grid; grid-template-columns:1fr 1.3fr 1fr; padding:.45rem; gap:.4rem; border-top:1px solid #37454e; background:#1c252c; }
