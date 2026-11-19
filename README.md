@@ -1,6 +1,21 @@
 # ilyynina
 
-A static creator-site prototype with two browser games. Serve the repository root with a static HTTP server that serves `.mjs` as JavaScript. For example, run `python -m http.server 8000 --bind 127.0.0.1` and open `http://127.0.0.1:8000/play.html` for Raid Relay or `/patch-bay.html` for Patch Bay.
+A creator site with two browser games and a Twitch-linked leaderboard for Patch Bay. Run `node scripts/dev.mjs` and open [Patch Bay](http://localhost:4175/patch-bay.html) or [Raid Relay](http://localhost:4175/play.html). The local server runs the same API handlers as Vercel. Both games also support guest play on static hosting.
+
+## Ranked Patch Bay
+
+Players sign in with Twitch and select **Start daily circuit**. Everyone gets the same three layouts for a given UTC date. Each solved panel awards 200, 400 or 600 base points plus an efficiency bonus starting at 500. Each turn or reset uses 10 bonus points until the bonus reaches zero. The server replays the submitted actions and scores all three panels. A ranked ticket lasts two hours and counts toward the date it started.
+
+The daily board keeps each Twitch account's highest score. The all-time board sums those daily bests. A better replay adds the difference, even if submissions arrive together. Equal scores share a rank. Both boards show the top ten players and the signed-in player's own standing.
+
+### Connecting Twitch and Redis
+
+1. Register a confidential web application in the [Twitch developer console](https://dev.twitch.tv/console/apps). Add the exact callback URL `https://<your-site-domain>/api/auth/callback`. For local sign-in, also register `http://localhost:4175/api/auth/callback`.
+2. In the Vercel project's environment settings, set `ARCADE_ORIGIN` to the canonical site origin, `TWITCH_CLIENT_ID` and `TWITCH_CLIENT_SECRET` to the app credentials, and `SESSION_SECRET` to a private random value of at least 32 characters. Serve the site on the canonical domain so the browser sends its session cookie. Use separate settings for previews.
+3. Connect an Upstash Redis database and set its REST URL and read/write token as `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`. Vercel's `KV_REST_API_URL` and `KV_REST_API_TOKEN` aliases also work. Redeploy after setting the variables. Data is keyed by Twitch user ID under the prefix `ilyynina:{patch-v1}:`.
+4. To test locally, place development credentials in the ignored `.env.local`, set `ARCADE_ORIGIN=http://localhost:4175`, and run `node --env-file=.env.local scripts/dev.mjs`. Open the localhost URL above. Use a development Redis database for these scores.
+
+Sign-in requests the public Twitch identity with no additional scopes. The callback uses an HTTP-only signed session after reading the profile and requests revocation of the Twitch access token. Public leaderboard entries link to the player's channel.
 
 ## Updating the site
 
@@ -12,4 +27,4 @@ A static creator-site prototype with two browser games. Serve the repository roo
 
 ## Verification
 
-Run `node --test` with Node 22 or later. The game tests cover the launch orbit, flippers, pause, ball saves, drains, jackpot qualification and a complete raid shot starting from an ordinary serve. Twitch response parsing has its own tests.
+Run `node --test` with Node 22 or later. Tests cover pinball physics, Patch Bay routing, daily scoring, signed ranked runs, and the Twitch callback with simulated upstream responses.

@@ -20,11 +20,14 @@
       <p class="kicker">Nina’s arcade / Signal puzzle</p>
       <h1>Patch <em>Bay</em></h1>
       <p>Turn the sockets to carry the signal from <strong>IN</strong> to <strong>AIR</strong>. Connected cables light up as you work.</p>
-      <a href="play.html">Play Raid Relay</a>
+      <p id="mode" class="run-mode">Practice circuit</p>
+      <p id="practice-best" hidden></p>
+      <a href="#leaderboard">Daily challenge &amp; leaderboard</a> · <a href="play.html">Play Raid Relay</a>
     </header>
     <section class="rack" aria-labelledby="panel-name">
       <header class="rack-head">
         <div><span id="panel-number">Panel 1 of 3</span><h2 id="panel-name">Camera feed</h2></div>
+        <div class="meter"><span>Points</span><strong id="points">0</strong></div>
         <div class="meter"><span>Turns</span><strong id="moves">0</strong></div>
       </header>
       <div id="sockets" class="sockets" role="group" aria-label="Rotating cable sockets" aria-describedby="instructions"></div>
@@ -35,6 +38,24 @@
       </footer>
     </section>
     <p id="instructions">Tap a socket to turn it clockwise. On a keyboard, use the arrow keys to move between sockets and Space to rotate.</p>
+    <section id="leaderboard" class="standings" aria-labelledby="standings-title">
+      <h2 id="standings-title" tabindex="-1">Patch Bay leaderboard</h2>
+      <p>Finish three panels to post a score. They earn 200, 400 and 600 points, plus up to 500 each for efficiency. Each turn or reset spends 10 bonus points.</p>
+      <p>Everyone plays the same daily circuit until midnight UTC. Your all-time score adds up your best score from each day.</p>
+      <div class="rank-actions">
+        <a id="signin" href="/api/arcade?action=login" hidden>Sign in with Twitch</a>
+        <button id="rank-start" type="button" hidden>Start daily circuit</button>
+        <button id="signout" type="button" hidden>Sign out</button>
+        <button id="retry-score" type="button" hidden>Retry submission</button>
+      </div>
+      <p id="account" role="status"></p>
+      <p id="submission" role="status"></p>
+      <label>Standings <select id="period"><option value="day">Today (UTC)</option><option value="total">All time</option></select></label>
+      <p id="board-status" role="status">Loading standings…</p>
+      <ol id="rank-rows"></ol>
+      <p id="my-rank"></p>
+      <button id="refresh-board" type="button">Refresh standings</button>
+    </section>
     <noscript>Enable JavaScript to connect the panel.</noscript>
   </main>
   <footer class="site-footer" data-footer></footer>
